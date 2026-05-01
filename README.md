@@ -24,6 +24,7 @@ Per port, in plain English:
 - **Cable e-marker info:** the cable's actual speed (USB 2.0, 5 / 10 / 20 / 40 / 80 Gbps), current rating (3 A / 5 A up to 60W / 100W / 240W), and the chip's vendor
 - **Charger PDO list:** every voltage profile the charger advertises (5V / 9V / 12V / 15V / 20V…) with the currently negotiated profile highlighted in real time
 - **Connected device identity:** vendor name and product type, decoded from the PD Discover Identity response
+- **Attached USB devices:** storage, hubs, and peripherals listed under the physical port they're plugged into, with their negotiated speed
 - **Active transports:** USB 2 / USB 3 / Thunderbolt / DisplayPort
 - **⌥-click** the menu bar icon (or flip the toggle in Settings) to reveal the underlying IOKit properties for engineers
 
@@ -78,13 +79,14 @@ The Homebrew install does this for you automatically.
 
 ## How it works
 
-WhatCable reads three families of IOKit services. No entitlements, no private APIs, no helper daemons:
+WhatCable reads four families of IOKit services. No entitlements, no private APIs, no helper daemons:
 
 | Service | What it gives us |
 | --- | --- |
-| `AppleHPMInterfaceType10/11/12` (M3-era) and `AppleTCControllerType10` (M1 / M2) | Per-port state: connection, transports, plug orientation, e-marker presence |
+| `AppleHPMInterfaceType10/11/12` (M3-era) and `AppleTCControllerType10/11` (M1 / M2) | Per-port state: connection, transports, plug orientation, e-marker presence. `Type11` is what M2 MacBook Air uses for its MagSafe 3 port. |
 | `IOPortFeaturePowerSource` | Full PDO list from the connected source, with the live "winning" PDO |
 | `IOPortTransportComponentCCUSBPDSOP` | PD Discover Identity VDOs for SOP (port partner) and SOP' (cable e-marker) |
+| XHCI controller subtree | Each connected USB device is paired to its physical port via the XHCI port node's `UsbIOPort` registry path, falling back to a bus-index derived from the controller's `locationID` upper byte and the port's `hpm` SPMI ancestor on machines that don't expose `UsbIOPort`. |
 
 Cable speed and power decoding follow the USB Power Delivery 3.x spec.
 
