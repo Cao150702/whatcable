@@ -10,6 +10,7 @@ dist/
 
 # Local planning / design / scratch docs (kept uncommitted by convention)
 planning/
+CLAUDE.md
 
 # Release notes are staged here, then copied into the homebrew-whatcable tap
 # repo and used as the GitHub release body. The tap repo is the canonical home.
