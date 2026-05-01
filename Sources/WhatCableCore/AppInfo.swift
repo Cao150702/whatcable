@@ -12,8 +12,13 @@ public enum AppInfo {
         // The CLI binary at Contents/Helpers/whatcable lives one extra level
         // deep, so Bundle.main doesn't auto-resolve to the .app. Walk up from
         // the executable until we find a Contents/Info.plist sibling.
+        // Resolve symlinks first: when invoked via Homebrew's /opt/homebrew/bin
+        // symlink, the executable path points outside the .app and walking up
+        // would never find the bundle.
         let exe = Bundle.main.executablePath ?? CommandLine.arguments.first ?? ""
-        var dir = URL(fileURLWithPath: exe).deletingLastPathComponent()
+        var dir = URL(fileURLWithPath: exe)
+            .resolvingSymlinksInPath()
+            .deletingLastPathComponent()
         for _ in 0..<4 {
             let plist = dir.appendingPathComponent("Info.plist")
             if let data = try? Data(contentsOf: plist),
