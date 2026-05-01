@@ -1,49 +1,133 @@
 import SwiftUI
 import AppKit
+import Combine
 
 @main
 struct WhatCableApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
 
     var body: some Scene {
-        // Headless — UI is owned by AppDelegate's NSStatusItem + NSPopover.
+        // Headless — UI is owned by AppDelegate (status item + popover, or
+        // a regular window, depending on AppSettings.useMenuBarMode).
         Settings { EmptyView() }
     }
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
-    private var statusItem: NSStatusItem!
-    private var popover: NSPopover!
+final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSWindowDelegate {
     static let refreshSignal = RefreshSignal()
+
+    // Menu bar mode
+    private var statusItem: NSStatusItem?
+    private var popover: NSPopover?
     private var isPinned = false
 
+    // Window mode
+    private var window: NSWindow?
+
+    private var cancellables: Set<AnyCancellable> = []
+
     func applicationDidFinishLaunching(_ notification: Notification) {
-        NSApp.setActivationPolicy(.accessory)
-        // Override the process name so the About panel and menu bar use the
+        // Override the process name so the About panel and menus use the
         // app name even though the SwiftPM executable name might differ.
         ProcessInfo.processInfo.setValue(AppInfo.name, forKey: "processName")
-
-        popover = NSPopover()
-        popover.behavior = .transient
-        popover.animates = true
-        popover.contentSize = NSSize(width: 760, height: 540)
-        popover.contentViewController = NSHostingController(
-            rootView: ContentView().environmentObject(Self.refreshSignal)
-        )
-        popover.delegate = self
 
         NotificationManager.shared.start()
         UpdateChecker.shared.start()
 
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "cable.connector", accessibilityDescription: AppInfo.name)
-            button.target = self
-            button.action = #selector(handleClick(_:))
-            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+        applyDisplayMode(menuBar: AppSettings.shared.useMenuBarMode)
+
+        // Live-switch when the user flips the toggle in Settings.
+        AppSettings.shared.$useMenuBarMode
+            .removeDuplicates()
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] menuBar in
+                self?.applyDisplayMode(menuBar: menuBar)
+            }
+            .store(in: &cancellables)
+    }
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        // In window mode, closing the window quits the app. In menu bar mode
+        // there's no window to close, so this is harmless either way.
+        !AppSettings.shared.useMenuBarMode
+    }
+
+    // MARK: - Display mode
+
+    private func applyDisplayMode(menuBar: Bool) {
+        if menuBar {
+            tearDownWindowMode()
+            setUpMenuBarMode()
+            NSApp.setActivationPolicy(.accessory)
+        } else {
+            tearDownMenuBarMode()
+            NSApp.setActivationPolicy(.regular)
+            setUpWindowMode()
+            NSApp.activate(ignoringOtherApps: true)
         }
     }
+
+    private func setUpMenuBarMode() {
+        if popover == nil {
+            let p = NSPopover()
+            p.behavior = isPinned ? .applicationDefined : .transient
+            p.animates = true
+            p.contentSize = NSSize(width: 760, height: 540)
+            p.contentViewController = NSHostingController(
+                rootView: ContentView().environmentObject(Self.refreshSignal)
+            )
+            p.delegate = self
+            popover = p
+        }
+        if statusItem == nil {
+            let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+            if let button = item.button {
+                button.image = NSImage(systemSymbolName: "cable.connector", accessibilityDescription: AppInfo.name)
+                button.target = self
+                button.action = #selector(handleClick(_:))
+                button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+            }
+            statusItem = item
+        }
+    }
+
+    private func tearDownMenuBarMode() {
+        if let popover, popover.isShown { popover.performClose(nil) }
+        popover = nil
+        if let statusItem {
+            NSStatusBar.system.removeStatusItem(statusItem)
+        }
+        statusItem = nil
+    }
+
+    private func setUpWindowMode() {
+        if let window {
+            window.makeKeyAndOrderFront(nil)
+            return
+        }
+        let host = NSHostingController(
+            rootView: ContentView().environmentObject(Self.refreshSignal)
+        )
+        let w = NSWindow(contentViewController: host)
+        w.title = AppInfo.name
+        w.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+        w.setContentSize(NSSize(width: 760, height: 540))
+        w.center()
+        w.delegate = self
+        w.isReleasedWhenClosed = false
+        window = w
+        w.makeKeyAndOrderFront(nil)
+    }
+
+    private func tearDownWindowMode() {
+        window?.delegate = nil
+        window?.close()
+        window = nil
+    }
+
+    // MARK: - Status item handling (menu bar mode)
 
     @objc private func handleClick(_ sender: NSStatusBarButton) {
         guard let event = NSApp.currentEvent else { return }
@@ -55,6 +139,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     }
 
     private func togglePopover(from button: NSStatusBarButton) {
+        guard let popover else { return }
         if popover.isShown {
             popover.performClose(nil)
         } else {
@@ -65,6 +150,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     }
 
     private func showMenu(from button: NSStatusBarButton) {
+        guard let statusItem else { return }
         let menu = NSMenu()
         menu.addItem(.init(title: "Refresh", action: #selector(menuRefresh), keyEquivalent: "r"))
         let pinItem = NSMenuItem(title: "Keep window open", action: #selector(menuTogglePin), keyEquivalent: "p")
@@ -84,7 +170,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
     @objc private func menuTogglePin() {
         isPinned.toggle()
-        popover.behavior = isPinned ? .applicationDefined : .transient
+        popover?.behavior = isPinned ? .applicationDefined : .transient
     }
 
     @objc private func menuRefresh() {
