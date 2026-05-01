@@ -2,6 +2,7 @@ import Foundation
 import AppKit
 import UserNotifications
 import os.log
+import WhatCableCore
 
 struct AvailableUpdate: Equatable {
     let version: String
@@ -138,17 +139,6 @@ final class UpdateChecker: ObservableObject {
 
     /// Compare dot-separated numeric versions. Non-numeric segments compare lexically.
     nonisolated static func isNewer(remote: String, current: String) -> Bool {
-        let r = parts(remote)
-        let c = parts(current)
-        for i in 0..<max(r.count, c.count) {
-            let rv = i < r.count ? r[i] : 0
-            let cv = i < c.count ? c[i] : 0
-            if rv != cv { return rv > cv }
-        }
-        return false
-    }
-
-    private nonisolated static func parts(_ version: String) -> [Int] {
-        version.split(separator: ".").map { Int($0) ?? 0 }
+        AppInfo.isNewer(remote: remote, current: current)
     }
 }

@@ -5,7 +5,7 @@ import Foundation
 /// stuff that ends up in the popover. Add more as needed.
 ///
 /// Source: usb.org public VID assignments. Names trimmed to common form.
-enum VendorDB {
+public enum VendorDB {
     private static let names: [Int: String] = [
         0x05AC: "Apple",
         0x004C: "Apple (legacy)",
@@ -86,12 +86,12 @@ enum VendorDB {
         0x14AD: "Microvision"
     ]
 
-    static func name(for vendorID: Int) -> String? {
+    public static func name(for vendorID: Int) -> String? {
         names[vendorID]
     }
 
     /// Returns "Realtek (0x0BDA)" if known, else "0x0BDA".
-    static func label(for vendorID: Int) -> String {
+    public static func label(for vendorID: Int) -> String {
         if let n = name(for: vendorID) {
             return "\(n) (0x\(String(format: "%04X", vendorID)))"
         }

@@ -4,8 +4,8 @@ import IOKit.ps
 
 /// Compares charger output, cable rating, and currently negotiated PDO to
 /// identify the bottleneck — the "why is my Mac charging slowly?" answer.
-struct ChargingDiagnostic {
-    enum Bottleneck {
+public struct ChargingDiagnostic {
+    public enum Bottleneck: Hashable {
         case noCharger
         case chargerLimit(chargerW: Int)
         case cableLimit(cableW: Int, chargerW: Int)
@@ -13,21 +13,11 @@ struct ChargingDiagnostic {
         case fine(negotiatedW: Int)
     }
 
-    let bottleneck: Bottleneck
-    let summary: String
-    let detail: String
+    public let bottleneck: Bottleneck
+    public let summary: String
+    public let detail: String
 
-    var icon: String {
-        switch bottleneck {
-        case .noCharger: return "battery.0"
-        case .chargerLimit: return "exclamationmark.triangle.fill"
-        case .cableLimit: return "exclamationmark.triangle.fill"
-        case .macLimit: return "questionmark.circle"
-        case .fine: return "checkmark.seal.fill"
-        }
-    }
-
-    var isWarning: Bool {
+    public var isWarning: Bool {
         switch bottleneck {
         case .fine: return false
         default: return true
@@ -36,7 +26,7 @@ struct ChargingDiagnostic {
 }
 
 extension ChargingDiagnostic {
-    init?(port: USBCPort, sources: [PowerSource], identities: [PDIdentity]) {
+    public init?(port: USBCPort, sources: [PowerSource], identities: [PDIdentity]) {
         guard let usbPD = sources.first(where: { $0.name == "USB-PD" }) else {
             return nil // No PD source on this port, no diagnostic to make.
         }
@@ -81,14 +71,20 @@ extension ChargingDiagnostic {
 
 /// External power adapter info from the system. Independent of the per-port
 /// IOKit views — useful when you want to know what the Mac thinks it's getting.
-enum SystemPower {
-    struct AdapterInfo {
-        let watts: Int?
-        let isCharging: Bool?
-        let source: String?  // "AC" / "Battery"
+public enum SystemPower {
+    public struct AdapterInfo {
+        public let watts: Int?
+        public let isCharging: Bool?
+        public let source: String?  // "AC" / "Battery"
+
+        public init(watts: Int?, isCharging: Bool?, source: String?) {
+            self.watts = watts
+            self.isCharging = isCharging
+            self.source = source
+        }
     }
 
-    static func currentAdapter() -> AdapterInfo? {
+    public static func currentAdapter() -> AdapterInfo? {
         guard let info = IOPSCopyExternalPowerAdapterDetails()?.takeRetainedValue() as? [String: Any] else {
             return AdapterInfo(watts: nil, isCharging: nil, source: nil)
         }

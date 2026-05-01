@@ -4,14 +4,16 @@ import IOKit
 /// Watches `IOPortFeaturePowerSource` services. These appear under each port's
 /// `Power In` feature when something that advertises PD is connected.
 @MainActor
-final class PowerSourceWatcher: ObservableObject {
-    @Published private(set) var sources: [PowerSource] = []
+public final class PowerSourceWatcher: ObservableObject {
+    @Published public private(set) var sources: [PowerSource] = []
 
     private var notifyPort: IONotificationPortRef?
     private var addedIter: io_iterator_t = 0
     private var removedIter: io_iterator_t = 0
 
-    func start() {
+    public init() {}
+
+    public func start() {
         guard notifyPort == nil else { return }
         let port = IONotificationPortCreate(kIOMainPortDefault)
         IONotificationPortSetDispatchQueue(port, DispatchQueue.main)
@@ -39,14 +41,14 @@ final class PowerSourceWatcher: ObservableObject {
         handleRemoved(removedIter)
     }
 
-    func stop() {
+    public func stop() {
         if addedIter != 0 { IOObjectRelease(addedIter); addedIter = 0 }
         if removedIter != 0 { IOObjectRelease(removedIter); removedIter = 0 }
         if let p = notifyPort { IONotificationPortDestroy(p); notifyPort = nil }
         sources.removeAll()
     }
 
-    func refresh() {
+    public func refresh() {
         sources.removeAll()
         var iter: io_iterator_t = 0
         if IOServiceGetMatchingServices(kIOMainPortDefault, IOServiceMatching("IOPortFeaturePowerSource"), &iter) == KERN_SUCCESS {
@@ -131,7 +133,7 @@ final class PowerSourceWatcher: ObservableObject {
 
 extension PowerSourceWatcher {
     /// All power sources attached to a given port.
-    func sources(for port: USBCPort) -> [PowerSource] {
+    public func sources(for port: USBCPort) -> [PowerSource] {
         guard let key = port.portKey else { return [] }
         return sources.filter { $0.portKey == key }
     }

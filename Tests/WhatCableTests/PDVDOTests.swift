@@ -1,5 +1,5 @@
 import XCTest
-@testable import WhatCable
+@testable import WhatCableCore
 
 final class PDVDOTests: XCTestCase {
 
