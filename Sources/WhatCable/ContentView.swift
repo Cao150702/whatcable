@@ -8,13 +8,12 @@ struct ContentView: View {
     @EnvironmentObject private var refresh: RefreshSignal
     @ObservedObject private var settings = AppSettings.shared
     @ObservedObject private var updates = UpdateChecker.shared
-    @State private var showAdvanced = false
     @State private var showSettings = false
 
     var body: some View {
         Group {
             if showSettings {
-                SettingsView(showAdvanced: $showAdvanced, dismiss: { showSettings = false })
+                SettingsView(showAdvanced: $refresh.showAdvanced, dismiss: { showSettings = false })
             } else {
                 mainContent
             }
@@ -59,7 +58,7 @@ struct ContentView: View {
                                 devices: matchingDevices(for: port),
                                 powerSources: powerWatcher.sources(for: port),
                                 identities: pdWatcher.identities(for: port),
-                                showAdvanced: showAdvanced
+                                showAdvanced: refresh.showAdvanced
                             )
                         }
                     }

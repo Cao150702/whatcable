@@ -134,6 +134,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         if event.type == .rightMouseUp {
             showMenu(from: sender)
         } else {
+            // ⌥-click flips the technical-details view, matching the macOS
+            // convention used by Wi-Fi / Volume / Bluetooth menus. Each click
+            // sets the state deterministically based on the current modifier.
+            Self.refreshSignal.showAdvanced = event.modifierFlags.contains(.option)
             togglePopover(from: sender)
         }
     }
@@ -159,6 +163,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         menu.addItem(.separator())
         menu.addItem(.init(title: "Check for Updates…", action: #selector(menuCheckUpdates), keyEquivalent: ""))
         menu.addItem(.init(title: "About \(AppInfo.name)", action: #selector(menuAbout), keyEquivalent: ""))
+        menu.addItem(.init(title: "WhatCable on GitHub", action: #selector(menuHelp), keyEquivalent: ""))
         menu.addItem(.separator())
         menu.addItem(.init(title: "Quit \(AppInfo.name)", action: #selector(menuQuit), keyEquivalent: "q"))
         for item in menu.items where item.action != nil { item.target = self }
@@ -199,6 +204,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         UpdateChecker.shared.check(silent: false)
     }
 
+    @objc private func menuHelp() {
+        NSWorkspace.shared.open(AppInfo.helpURL)
+    }
+
     @objc private func menuQuit() {
         NSApp.terminate(nil)
     }
@@ -206,5 +215,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
 
 final class RefreshSignal: ObservableObject {
     @Published var tick: Int = 0
+    /// Mirrors the "Show technical details" preference. Settable from the
+    /// AppDelegate so a ⌥-click on the menu bar icon can flip it without
+    /// the user having to open Settings.
+    @Published var showAdvanced: Bool = false
     func bump() { tick &+= 1 }
 }
