@@ -25,9 +25,16 @@ Per port, in plain English:
 - **Charger PDO list** — every voltage profile the charger advertises (5V / 9V / 12V / 15V / 20V…) with the currently negotiated profile highlighted in real time
 - **Connected device identity** — vendor name and product type, decoded from the PD Discover Identity response
 - **Active transports** — USB 2 / USB 3 / Thunderbolt / DisplayPort
-- **"Show technical details"** toggle revealing the underlying IOKit properties for engineers
+- **⌥-click** the menu bar icon (or flip the toggle in Settings) to reveal the underlying IOKit properties for engineers
 
-Right-click the menu bar icon for **Refresh**, a **Keep window open** toggle (handy for screenshots and demos), **About**, and **Quit**.
+Click the **gear icon** in the popover header to open Settings, where you can:
+
+- Hide empty ports
+- Launch at login
+- Run as a regular Dock app instead of a menu bar icon
+- Get notifications when cables are connected or disconnected
+
+Right-click the menu bar icon for **Refresh**, a **Keep window open** toggle (handy for screenshots and demos), **Check for Updates…**, **About**, **WhatCable on GitHub**, and **Quit**.
 
 ## Install
 
@@ -43,7 +50,7 @@ WhatCable reads three families of IOKit services. No entitlements, no private AP
 
 | Service | What it gives us |
 | --- | --- |
-| `AppleHPMInterfaceType10/11` | Per-port state: connection, transports, plug orientation, e-marker presence |
+| `AppleHPMInterfaceType10/11/12` (M3-era) and `AppleTCControllerType10` (M1 / M2) | Per-port state: connection, transports, plug orientation, e-marker presence |
 | `IOPortFeaturePowerSource` | Full PDO list from the connected source, with the live "winning" PDO |
 | `IOPortTransportComponentCCUSBPDSOP` | PD Discover Identity VDOs for SOP (port partner) and SOP' (cable e-marker) |
 
