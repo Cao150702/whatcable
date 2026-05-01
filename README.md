@@ -16,15 +16,15 @@ USB-C hides a lot under one connector. Anything from a USB 2.0 charge-only cable
 
 Per port, in plain English:
 
-- **At-a-glance headline** — Thunderbolt / USB4, USB device, Charging only, Slow USB / charge-only cable, Nothing connected
-- **Charging diagnostic** — when something's plugged in, a banner identifies the bottleneck:
+- **At-a-glance headline:** Thunderbolt / USB4, USB device, Charging only, Slow USB / charge-only cable, Nothing connected
+- **Charging diagnostic:** when something's plugged in, a banner identifies the bottleneck:
   - *"Cable is limiting charging speed"* (cable rated below the charger)
   - *"Charging at 30W (charger can do up to 96W)"* (Mac is asking for less, e.g. battery near full)
   - *"Charging well at 96W"* (everything matches)
-- **Cable e-marker info** — the cable's actual speed (USB 2.0, 5 / 10 / 20 / 40 / 80 Gbps), current rating (3 A / 5 A → up to 60W / 100W / 240W), and the chip's vendor
-- **Charger PDO list** — every voltage profile the charger advertises (5V / 9V / 12V / 15V / 20V…) with the currently negotiated profile highlighted in real time
-- **Connected device identity** — vendor name and product type, decoded from the PD Discover Identity response
-- **Active transports** — USB 2 / USB 3 / Thunderbolt / DisplayPort
+- **Cable e-marker info:** the cable's actual speed (USB 2.0, 5 / 10 / 20 / 40 / 80 Gbps), current rating (3 A / 5 A up to 60W / 100W / 240W), and the chip's vendor
+- **Charger PDO list:** every voltage profile the charger advertises (5V / 9V / 12V / 15V / 20V…) with the currently negotiated profile highlighted in real time
+- **Connected device identity:** vendor name and product type, decoded from the PD Discover Identity response
+- **Active transports:** USB 2 / USB 3 / Thunderbolt / DisplayPort
 - **⌥-click** the menu bar icon (or flip the toggle in Settings) to reveal the underlying IOKit properties for engineers
 
 Click the **gear icon** in the popover header to open Settings, where you can:
@@ -40,7 +40,7 @@ Right-click the menu bar icon for **Refresh**, a **Keep window open** toggle (ha
 
 Download the latest `WhatCable.zip` from the [Releases page](https://github.com/darrylmorley/whatcable/releases/latest), unzip, and drag `WhatCable.app` to `/Applications`.
 
-The app is universal (Apple silicon + Intel), signed with a Developer ID, and notarised by Apple — no Gatekeeper warnings.
+The app is universal (Apple silicon + Intel), signed with a Developer ID, and notarised by Apple, so there are no Gatekeeper warnings.
 
 Requires macOS 14 (Sonoma) or later.
 
@@ -145,15 +145,15 @@ cp .env.example .env
 ## Caveats
 
 - **Cable e-marker info only appears for cables that carry one.** Most USB-C cables under 60 W are unmarked. Any Thunderbolt / USB4 cable, any 5 A / 100 W+ cable, and most quality data cables will be e-marked.
-- **WhatCable trusts the e-marker.** The cable speed, current rating, and vendor are read straight from the chip in the cable's plug. Counterfeit or mis-flashed cables can advertise capabilities they don't actually deliver, and there's no way for software to verify what's inside the jacket. If a cable claims 240W / 40 Gbps but performs poorly, the chip is lying — not WhatCable.
+- **WhatCable trusts the e-marker.** The cable speed, current rating, and vendor are read straight from the chip in the cable's plug. Counterfeit or mis-flashed cables can advertise capabilities they don't actually deliver, and there's no way for software to verify what's inside the jacket. If a cable claims 240W / 40 Gbps but performs poorly, the chip is lying, not WhatCable.
 - **PD spec coverage:** the decoder targets PD 3.0 / 3.1. PD 3.2 EPR variants may need tweaks once we see real data.
-- **Vendor name lookup is bundled but not exhaustive** — common cable, charger, hub, dock, and storage vendors are recognised; others fall back to the hex VID.
+- **Vendor name lookup is bundled but not exhaustive:** common cable, charger, hub, dock, and storage vendors are recognised; others fall back to the hex VID.
 - **macOS only.** iOS sandboxing makes USB-C e-marker access much harder.
 - **Not on the App Store.** App Sandbox blocks the IOKit reads we depend on.
 
 ## Contributing
 
-Issues and PRs welcome. The code is small and tries to stay readable — start at [`Sources/WhatCable/ContentView.swift`](Sources/WhatCable/ContentView.swift) for the UI, [`PortSummary.swift`](Sources/WhatCable/PortSummary.swift) for the plain-English logic, or [`PDVDO.swift`](Sources/WhatCable/PDVDO.swift) for the bit-twiddling.
+Issues and PRs welcome. The code is small and tries to stay readable. Start at [`Sources/WhatCable/ContentView.swift`](Sources/WhatCable/ContentView.swift) for the UI, [`Sources/WhatCableCore/PortSummary.swift`](Sources/WhatCableCore/PortSummary.swift) for the plain-English logic, or [`Sources/WhatCableCore/PDVDO.swift`](Sources/WhatCableCore/PDVDO.swift) for the bit-twiddling. The diagnostic engine lives in `WhatCableCore`, which is shared by the menu bar app and the `whatcable` CLI in `Sources/WhatCableCLI/`.
 
 ## Credits
 
