@@ -100,7 +100,7 @@ cp .env.example .env
 
 ## Contributing
 
-Issues and PRs welcome. The code is small and tries to stay readable — start at [`Sources/CableTest/ContentView.swift`](Sources/CableTest/ContentView.swift) for the UI, [`PortSummary.swift`](Sources/CableTest/PortSummary.swift) for the plain-English logic, or [`PDVDO.swift`](Sources/CableTest/PDVDO.swift) for the bit-twiddling.
+Issues and PRs welcome. The code is small and tries to stay readable — start at [`Sources/WhatCable/ContentView.swift`](Sources/WhatCable/ContentView.swift) for the UI, [`PortSummary.swift`](Sources/WhatCable/PortSummary.swift) for the plain-English logic, or [`PDVDO.swift`](Sources/WhatCable/PDVDO.swift) for the bit-twiddling.
 
 ## Credits
 

@@ -48,6 +48,13 @@ cp "${BIN_PATH}/${APP_NAME}" "${MACOS_DIR}/${APP_NAME}"
 echo "==> Verifying universal binary"
 lipo -archs "${MACOS_DIR}/${APP_NAME}" | sed 's/^/    /'
 
+echo "==> Copying app icon"
+if [[ ! -f "scripts/AppIcon.icns" ]]; then
+    echo "    AppIcon.icns missing — regenerating via make-icon.sh"
+    ./scripts/make-icon.sh
+fi
+cp "scripts/AppIcon.icns" "${RESOURCES_DIR}/AppIcon.icns"
+
 echo "==> Writing Info.plist"
 cat > "${CONTENTS_DIR}/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -58,6 +65,8 @@ cat > "${CONTENTS_DIR}/Info.plist" <<PLIST
     <string>en</string>
     <key>CFBundleExecutable</key>
     <string>${APP_NAME}</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundleIdentifier</key>
     <string>${BUNDLE_ID}</string>
     <key>CFBundleInfoDictionaryVersion</key>

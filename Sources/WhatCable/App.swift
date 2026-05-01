@@ -11,6 +11,7 @@ struct WhatCableApp: App {
     }
 }
 
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var statusItem: NSStatusItem!
     private var popover: NSPopover!
@@ -31,6 +32,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             rootView: ContentView().environmentObject(Self.refreshSignal)
         )
         popover.delegate = self
+
+        NotificationManager.shared.start()
+        UpdateChecker.shared.start()
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem.button {
@@ -67,6 +71,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         pinItem.state = isPinned ? .on : .off
         menu.addItem(pinItem)
         menu.addItem(.separator())
+        menu.addItem(.init(title: "Check for Updates…", action: #selector(menuCheckUpdates), keyEquivalent: ""))
         menu.addItem(.init(title: "About \(AppInfo.name)", action: #selector(menuAbout), keyEquivalent: ""))
         menu.addItem(.separator())
         menu.addItem(.init(title: "Quit \(AppInfo.name)", action: #selector(menuQuit), keyEquivalent: "q"))
@@ -102,6 +107,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             .credits: credits,
             .init(rawValue: "Copyright"): AppInfo.copyright
         ])
+    }
+
+    @objc private func menuCheckUpdates() {
+        UpdateChecker.shared.check(silent: false)
     }
 
     @objc private func menuQuit() {

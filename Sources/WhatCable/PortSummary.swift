@@ -123,11 +123,6 @@ extension PortSummary {
             bullets.append("Cable made by \(VendorDB.label(for: cable.vendorID))")
         }
 
-        // Plug orientation
-        if let orient = port.plugOrientation, orient != 0 {
-            bullets.append("Plug inserted upside-down (handled automatically)")
-        }
-
         // Headline + status
         // Only show a wattage suffix if we have a real number (>0 and we have
         // options, not just the winning PDO).

@@ -6,11 +6,16 @@ struct ContentView: View {
     @StateObject private var powerWatcher = PowerSourceWatcher()
     @StateObject private var pdWatcher = PDIdentityWatcher()
     @EnvironmentObject private var refresh: RefreshSignal
+    @ObservedObject private var settings = AppSettings.shared
+    @ObservedObject private var updates = UpdateChecker.shared
     @State private var showAdvanced = false
 
     var body: some View {
         VStack(spacing: 0) {
             header
+            if let update = updates.available {
+                UpdateBanner(update: update)
+            }
             Divider()
             if portWatcher.ports.isEmpty {
                 emptyState
@@ -75,18 +80,29 @@ struct ContentView: View {
     }
 
     private var footer: some View {
-        HStack(spacing: 8) {
-            Toggle("Show technical details", isOn: $showAdvanced)
-                .toggleStyle(.switch)
-                .controlSize(.small)
-            Spacer()
-            Text("\(deviceWatcher.devices.count) USB device\(deviceWatcher.devices.count == 1 ? "" : "s")")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Text("·").font(.caption).foregroundStyle(.secondary)
-            Text("v\(AppInfo.version) · \(AppInfo.credit)")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+        VStack(spacing: 6) {
+            HStack(spacing: 16) {
+                Toggle("Show technical details", isOn: $showAdvanced)
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+                Toggle("Launch at login", isOn: $settings.launchAtLogin)
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+                Toggle("Notify on cable changes", isOn: $settings.notifyOnChanges)
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+                Spacer()
+            }
+            HStack {
+                Spacer()
+                Text("\(deviceWatcher.devices.count) USB device\(deviceWatcher.devices.count == 1 ? "" : "s")")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text("·").font(.caption).foregroundStyle(.secondary)
+                Text("v\(AppInfo.version) · \(AppInfo.credit)")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
@@ -114,6 +130,30 @@ struct ContentView: View {
     private func matchingDevices(for port: USBCPort) -> [USBDevice] {
         guard port.connectionActive == true else { return [] }
         return deviceWatcher.devices
+    }
+}
+
+struct UpdateBanner: View {
+    let update: AvailableUpdate
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "arrow.down.circle.fill")
+                .foregroundStyle(.tint)
+            Text("WhatCable \(update.version) is available")
+                .font(.callout).bold()
+            Text("(you're on \(AppInfo.version))")
+                .font(.caption).foregroundStyle(.secondary)
+            Spacer()
+            Button("View release") {
+                NSWorkspace.shared.open(update.url)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color.accentColor.opacity(0.12))
     }
 }
 

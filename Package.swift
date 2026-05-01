@@ -7,7 +7,7 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "WhatCable",
-            path: "Sources/CableTest"
+            path: "Sources/WhatCable"
         )
     ]
 )
