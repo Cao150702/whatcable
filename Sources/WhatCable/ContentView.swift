@@ -158,22 +158,42 @@ struct ContentView: View {
 
     /// Match USB devices to their physical port. The IOKit relationship
     /// isn't direct: USB devices live under the XHCI controller subtree,
-    /// physical ports under the SPMI/HPM subtree. We bridge them with a
-    /// "bus index": for ports it comes from the `hpm<N>` ancestor (M3+),
-    /// for devices it comes from the `locationID` upper byte (which equals
-    /// the parent XHCI controller's locationID upper byte).
+    /// physical ports under the SPMI/HPM subtree. Two strategies, in order:
     ///
-    /// Falls back to the `TransportsActive` USB filter when the port has
-    /// no derivable bus index (M1/M2, MagSafe). That at least keeps USB
-    /// devices off DisplayPort-only / charge-only ports, even if it can't
-    /// fully disambiguate which port a device is on.
+    ///   1. `controllerPortName`: each XHCI controller exposes a `UsbIOPort`
+    ///      property whose path ends in the physical port's service name
+    ///      (e.g. ".../Port-USB-C@1"). When present, this gives a direct
+    ///      link with no ambiguity.
+    ///   2. `busIndex`: derived from the `hpm<N>` ancestor on the port side
+    ///      and the XHCI controller's `locationID` upper byte on the device
+    ///      side. Fragile, breaks when devices sit deeper behind a hub
+    ///      than the parent walk reaches, or when hpm numbering diverges
+    ///      from controller numbering.
+    ///
+    /// If neither is available we return [] rather than dumping every
+    /// device onto the port. Showing all devices on every active USB port
+    /// is worse than showing none, and it caused the bug that issue #21
+    /// reported.
     private func matchingDevices(for port: USBCPort) -> [USBDevice] {
         guard port.connectionActive == true else { return [] }
         guard portCarriesUSB(port) else { return [] }
+        let byPortName = deviceWatcher.devices.filter { $0.controllerPortName == port.serviceName }
+        if !byPortName.isEmpty {
+            return byPortName
+        }
+        // No device claims this port via UsbIOPort. Only fall back to bus-index
+        // matching if at least one device exposes a controllerPortName, which
+        // tells us UsbIOPort is supported on this machine and an empty result
+        // is meaningful (no device is on this port). Otherwise UsbIOPort isn't
+        // available and we use the older busIndex heuristic.
+        let anyDeviceHasPortName = deviceWatcher.devices.contains { $0.controllerPortName != nil }
+        if anyDeviceHasPortName {
+            return []
+        }
         if let portBus = port.busIndex {
             return deviceWatcher.devices.filter { $0.busIndex == portBus }
         }
-        return deviceWatcher.devices
+        return []
     }
 
     private func portCarriesUSB(_ port: USBCPort) -> Bool {

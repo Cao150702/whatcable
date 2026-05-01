@@ -95,9 +95,24 @@ public final class USBCPortWatcher: ObservableObject {
         var entryID: UInt64 = 0
         IORegistryEntryGetRegistryEntryID(service, &entryID)
 
+        // Build the full registry entry name with its location suffix
+        // (e.g. "Port-USB-C@1"). `IORegistryEntryGetName` returns just the
+        // base name ("Port-USB-C"); the "@1" comes from
+        // `IORegistryEntryGetLocationInPlane`. Devices reference ports by
+        // this combined form via their XHCI controller's `UsbIOPort`
+        // property, so the two must match.
         var nameBuf = [CChar](repeating: 0, count: 128)
         IORegistryEntryGetName(service, &nameBuf)
-        let serviceName = String(cString: nameBuf)
+        let baseName = String(cString: nameBuf)
+
+        var locBuf = [CChar](repeating: 0, count: 128)
+        let serviceName: String
+        if IORegistryEntryGetLocationInPlane(service, kIOServicePlane, &locBuf) == KERN_SUCCESS {
+            let location = String(cString: locBuf)
+            serviceName = location.isEmpty ? baseName : "\(baseName)@\(location)"
+        } else {
+            serviceName = baseName
+        }
 
         var classBuf = [CChar](repeating: 0, count: 128)
         IOObjectGetClass(service, &classBuf)

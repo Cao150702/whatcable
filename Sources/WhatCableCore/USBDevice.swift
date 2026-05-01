@@ -17,6 +17,12 @@ public struct USBDevice: Identifiable, Hashable {
     /// parent chain to the `AppleT*USBXHCI` ancestor). Used to associate the
     /// device with its physical USB-C port. `nil` if the parent walk failed.
     public let busIndex: Int?
+    /// Service name of the physical port this device's XHCI controller is
+    /// wired to (e.g. "Port-USB-C@1"), parsed from the controller's
+    /// `UsbIOPort` property. This is a direct mapping and is preferred over
+    /// `busIndex` when available. `nil` on machines that don't expose
+    /// `UsbIOPort` on the XHCI controller.
+    public let controllerPortName: String?
     public let rawProperties: [String: String]
 
     public init(
@@ -32,6 +38,7 @@ public struct USBDevice: Identifiable, Hashable {
         busPowerMA: Int?,
         currentMA: Int?,
         busIndex: Int? = nil,
+        controllerPortName: String? = nil,
         rawProperties: [String: String]
     ) {
         self.id = id
@@ -46,6 +53,7 @@ public struct USBDevice: Identifiable, Hashable {
         self.busPowerMA = busPowerMA
         self.currentMA = currentMA
         self.busIndex = busIndex
+        self.controllerPortName = controllerPortName
         self.rawProperties = rawProperties
     }
 

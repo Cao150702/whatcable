@@ -109,6 +109,8 @@ public final class USBWatcher: ObservableObject {
             raw[k] = stringify(v)
         }
 
+        let (busIdx, portName) = controllerInfo(for: service, fallback: locationID)
+
         return USBDevice(
             id: entryID,
             locationID: locationID,
@@ -121,23 +123,35 @@ public final class USBWatcher: ObservableObject {
             speedRaw: speedRaw,
             busPowerMA: busPower,
             currentMA: current,
-            busIndex: busIndex(for: service, fallback: locationID),
+            busIndex: busIdx,
+            controllerPortName: portName,
             rawProperties: raw
         )
     }
 
-    /// Walks the IOKit parent chain looking for the `AppleT*USBXHCI`
-    /// ancestor of an `IOUSBHostDevice` and returns the upper byte of its
-    /// own `locationID` as a bus index. Falls back to the upper byte of the
-    /// device's own `locationID` if the walk doesn't reach an XHCI ancestor
-    /// (the encoding is the same — devices inherit the controller's
-    /// location prefix).
-    private func busIndex(for service: io_service_t, fallback locationID: UInt32) -> Int? {
+    /// Walks the IOKit parent chain from a USB device collecting two pieces
+    /// of information:
+    ///   - `controllerPortName`: parsed from the first ancestor with a
+    ///     `UsbIOPort` property. These are the `usb-drd*-port-hs/ss` nodes
+    ///     that sit between the device and the `AppleT*USBXHCI` controller.
+    ///     Their `UsbIOPort` value is a registry path ending in the physical
+    ///     port's service name (e.g. ".../Port-USB-C@1").
+    ///   - `busIndex`: upper byte of the XHCI controller's `locationID`,
+    ///     kept as a fallback for older topologies that don't expose
+    ///     `UsbIOPort` (and for the advanced view).
+    ///
+    /// Walks up to 16 hops to handle devices behind a hub: a device behind
+    /// a USB 2.0 hub sits ~5 hops below the `usb-drd*-port-hs` node and
+    /// ~6 below the XHCI controller.
+    private func controllerInfo(for service: io_service_t, fallback locationID: UInt32) -> (Int?, String?) {
         var current = service
         IOObjectRetain(current)
         defer { IOObjectRelease(current) }
 
-        for _ in 0..<8 {
+        var portName: String?
+        var bus: Int?
+
+        for _ in 0..<16 {
             var parent: io_service_t = 0
             guard IORegistryEntryGetParentEntry(current, kIOServicePlane, &parent) == KERN_SUCCESS else {
                 break
@@ -145,20 +159,29 @@ public final class USBWatcher: ObservableObject {
             IOObjectRelease(current)
             current = parent
 
+            if portName == nil,
+               let raw = IORegistryEntryCreateCFProperty(current, "UsbIOPort" as CFString, kCFAllocatorDefault, 0)?.takeRetainedValue() as? String,
+               let last = raw.split(separator: "/").last {
+                portName = String(last)
+            }
+
             var classBuf = [CChar](repeating: 0, count: 128)
             IOObjectGetClass(current, &classBuf)
             let className = String(cString: classBuf)
             if className.hasPrefix("AppleT") && className.hasSuffix("USBXHCI") {
                 if let loc = (IORegistryEntryCreateCFProperty(current, "locationID" as CFString, kCFAllocatorDefault, 0)?.takeRetainedValue() as? NSNumber)?.uint32Value {
-                    return Int((loc >> 24) & 0xFF)
+                    bus = Int((loc >> 24) & 0xFF)
                 }
                 break
             }
         }
-        // Fallback: the device's own locationID upper byte mirrors its
-        // controller's locationID upper byte on Apple Silicon.
-        let upper = Int((locationID >> 24) & 0xFF)
-        return upper
+
+        if bus == nil {
+            // Fallback: the device's own locationID upper byte mirrors its
+            // controller's locationID upper byte on Apple Silicon.
+            bus = Int((locationID >> 24) & 0xFF)
+        }
+        return (bus, portName)
     }
 
     private func formatBCD(_ value: UInt16) -> String {
