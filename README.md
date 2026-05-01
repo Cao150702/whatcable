@@ -66,10 +66,10 @@ whatcable --version
 whatcable --help
 ```
 
-If you installed the `.app` manually rather than via Homebrew, the CLI lives at `WhatCable.app/Contents/MacOS/whatcable`. Symlink it into your PATH if you want it on the shell:
+If you installed the `.app` manually rather than via Homebrew, the CLI lives at `WhatCable.app/Contents/Helpers/whatcable`. Symlink it into your PATH if you want it on the shell:
 
 ```bash
-ln -s /Applications/WhatCable.app/Contents/MacOS/whatcable /usr/local/bin/whatcable
+ln -s /Applications/WhatCable.app/Contents/Helpers/whatcable /usr/local/bin/whatcable
 ```
 
 The Homebrew install does this for you automatically.
