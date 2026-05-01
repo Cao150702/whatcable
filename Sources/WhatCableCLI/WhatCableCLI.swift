@@ -19,9 +19,10 @@ struct WhatCableCLI {
         }
 
         let showRaw = args.contains("--raw")
+        let asJSON = args.contains("--json")
 
         // Reject unknown flags so typos don't silently produce default output.
-        let knownFlags: Set<String> = ["--raw", "-h", "--help", "--version"]
+        let knownFlags: Set<String> = ["--raw", "--json", "-h", "--help", "--version"]
         for arg in args where arg.hasPrefix("-") && !knownFlags.contains(arg) {
             FileHandle.standardError.write(Data("whatcable: unknown option \(arg)\n".utf8))
             FileHandle.standardError.write(Data(helpText.utf8))
@@ -36,13 +37,28 @@ struct WhatCableCLI {
         powerWatcher.refresh()
         pdWatcher.refresh()
 
-        let output = TextFormatter.render(
-            ports: portWatcher.ports,
-            sources: powerWatcher.sources,
-            identities: pdWatcher.identities,
-            showRaw: showRaw
-        )
-        print(output, terminator: "")
+        if asJSON {
+            do {
+                let json = try JSONFormatter.render(
+                    ports: portWatcher.ports,
+                    sources: powerWatcher.sources,
+                    identities: pdWatcher.identities,
+                    showRaw: showRaw
+                )
+                print(json)
+            } catch {
+                FileHandle.standardError.write(Data("whatcable: json encoding failed: \(error)\n".utf8))
+                exit(1)
+            }
+        } else {
+            let output = TextFormatter.render(
+                ports: portWatcher.ports,
+                sources: powerWatcher.sources,
+                identities: pdWatcher.identities,
+                showRaw: showRaw
+            )
+            print(output, terminator: "")
+        }
     }
 
     static let helpText = """
@@ -51,6 +67,7 @@ struct WhatCableCLI {
     Usage: whatcable [options]
 
     Options:
+      --json         Output as JSON instead of human-readable text
       --raw          Include raw IOKit properties for each port
       --version      Print version and exit
       -h, --help     Show this help and exit
