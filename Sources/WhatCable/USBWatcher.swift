@@ -35,7 +35,7 @@ final class USBWatcher: ObservableObject {
         IOServiceAddMatchingNotification(
             port,
             kIOMatchedNotification,
-            matching.copy() as! CFDictionary,
+            (matching.copy() as! CFDictionary),
             addedCallback,
             selfPtr,
             &addedIter
@@ -45,7 +45,7 @@ final class USBWatcher: ObservableObject {
         IOServiceAddMatchingNotification(
             port,
             kIOTerminatedNotification,
-            matching.copy() as! CFDictionary,
+            (matching.copy() as! CFDictionary),
             removedCallback,
             selfPtr,
             &removedIter
