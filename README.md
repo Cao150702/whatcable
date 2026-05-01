@@ -2,9 +2,9 @@
 
 > **What can this USB-C cable actually do?**
 
-A small macOS menu bar app that tells you, in plain English, what each USB-C cable plugged into your Mac can actually do — and **why your Mac might be charging slowly**.
+A small macOS menu bar app that tells you, in plain English, what each USB-C cable plugged into your Mac can actually do, and **why your Mac might be charging slowly**.
 
-USB-C is the worst kind of standard: identical-looking connectors covering everything from a USB 2.0 charge-only cable to a 240W / 40 Gbps Thunderbolt 4 cable. macOS already exposes the relevant info via IOKit; WhatCable surfaces it as a friendly menu bar popover.
+USB-C hides a lot under one connector. Anything from a USB 2.0 charge-only cable to a 240W / 40 Gbps Thunderbolt 4 cable, all looking identical in your drawer. macOS already exposes the relevant info via IOKit; WhatCable surfaces it as a friendly menu bar popover.
 
 [![Latest release](https://img.shields.io/github/v/release/darrylmorley/whatcable)](https://github.com/darrylmorley/whatcable/releases/latest)
 [![Platform](https://img.shields.io/badge/platform-macOS%2014%2B-blue)](https://github.com/darrylmorley/whatcable)
@@ -96,7 +96,7 @@ cp .env.example .env
 - **PD spec coverage:** the decoder targets PD 3.0 / 3.1. PD 3.2 EPR variants may need tweaks once we see real data.
 - **Vendor name lookup is bundled but not exhaustive** — common cable, charger, hub, dock, and storage vendors are recognised; others fall back to the hex VID.
 - **macOS only.** iOS sandboxing makes USB-C e-marker access much harder.
-- **Not on the App Store.** App Sandbox blocks the IOKit reads we depend on. Direct distribution is the right home for this kind of utility.
+- **Not on the App Store.** App Sandbox blocks the IOKit reads we depend on.
 
 ## Contributing
 
