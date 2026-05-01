@@ -106,4 +106,4 @@ Issues and PRs welcome. The code is small and tries to stay readable — start a
 
 Built by [Darryl Morley](https://github.com/darrylmorley).
 
-Inspired by every time someone has asked "*is this cable any good?*" and the answer required a screwdriver and a spec sheet.
+Inspired by every time someone has asked "*is this cable any good?*".
