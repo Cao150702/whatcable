@@ -64,7 +64,7 @@ struct ContentView: View {
             }
             Spacer()
             Button {
-                portWatcher.refresh()
+                refresh.bump()
             } label: {
                 Image(systemName: "arrow.clockwise")
             }

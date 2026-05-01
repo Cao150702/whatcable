@@ -89,9 +89,11 @@ extension PortSummary {
         // Power summary from PD power sources
         let usbPD = sources.first(where: { $0.name == "USB-PD" })
         if let usbPD {
-            let maxW = Double(usbPD.maxPowerMW) / 1000
-            let roundedW = Int(maxW.rounded())
-            bullets.append("Charger advertises up to \(roundedW)W")
+            let maxW = Int((Double(usbPD.maxPowerMW) / 1000).rounded())
+            let hasOptions = !usbPD.options.isEmpty
+            if hasOptions && maxW > 0 {
+                bullets.append("Charger advertises up to \(maxW)W")
+            }
             if let win = usbPD.winning {
                 bullets.append("Currently negotiated: \(win.voltsLabel) @ \(win.ampsLabel) (\(win.wattsLabel))")
             }
@@ -127,7 +129,13 @@ extension PortSummary {
         }
 
         // Headline + status
-        let chargerW: Int? = usbPD.map { Int((Double($0.maxPowerMW) / 1000).rounded()) }
+        // Only show a wattage suffix if we have a real number (>0 and we have
+        // options, not just the winning PDO).
+        let chargerW: Int? = {
+            guard let usbPD, !usbPD.options.isEmpty else { return nil }
+            let w = Int((Double(usbPD.maxPowerMW) / 1000).rounded())
+            return w > 0 ? w : nil
+        }()
         let chargerSuffix = chargerW.map { " · \($0)W charger" } ?? ""
         let cableSpeedSuffix: String = {
             guard let cv = cableEmarker?.cableVDO else { return "" }
@@ -143,11 +151,15 @@ extension PortSummary {
             self.status = .displayCable
             self.headline = "USB-C with video" + chargerSuffix
             self.subtitle = "Carrying both data and DisplayPort video."
+        } else if hasDP {
+            self.status = .displayCable
+            self.headline = "Display connected" + chargerSuffix
+            self.subtitle = "DisplayPort video over USB-C alt mode."
         } else if hasUSB3 {
             self.status = .dataDevice
             self.headline = "USB device" + chargerSuffix
             self.subtitle = "SuperSpeed data link is active."
-        } else if hasUSB2 && active.contains("USB2") && !hasUSB3 {
+        } else if hasUSB2 && !hasUSB3 {
             self.status = .dataDevice
             self.headline = "Slow USB device or charge-only cable" + chargerSuffix
             self.subtitle = "Only USB 2.0 is active. If you expected high speed, the cable may not support it."

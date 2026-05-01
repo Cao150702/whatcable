@@ -15,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var statusItem: NSStatusItem!
     private var popover: NSPopover!
     static let refreshSignal = RefreshSignal()
+    private var isPinned = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -62,6 +63,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private func showMenu(from button: NSStatusBarButton) {
         let menu = NSMenu()
         menu.addItem(.init(title: "Refresh", action: #selector(menuRefresh), keyEquivalent: "r"))
+        let pinItem = NSMenuItem(title: "Keep window open", action: #selector(menuTogglePin), keyEquivalent: "p")
+        pinItem.state = isPinned ? .on : .off
+        menu.addItem(pinItem)
         menu.addItem(.separator())
         menu.addItem(.init(title: "About \(AppInfo.name)", action: #selector(menuAbout), keyEquivalent: ""))
         menu.addItem(.separator())
@@ -71,6 +75,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         statusItem.menu = menu
         statusItem.button?.performClick(nil)
         statusItem.menu = nil
+    }
+
+    @objc private func menuTogglePin() {
+        isPinned.toggle()
+        popover.behavior = isPinned ? .applicationDefined : .transient
     }
 
     @objc private func menuRefresh() {

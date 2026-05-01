@@ -29,7 +29,10 @@ struct PowerSource: Identifiable, Hashable {
     let winning: PowerOption?
 
     var maxPowerMW: Int {
-        options.map(\.maxPowerMW).max() ?? 0
+        if let max = options.map(\.maxPowerMW).max(), max > 0 {
+            return max
+        }
+        return winning?.maxPowerMW ?? 0
     }
 
     /// Match key joining a power source to its port.

@@ -7,12 +7,13 @@ import IOKit
 final class USBCPortWatcher: ObservableObject {
     @Published private(set) var ports: [USBCPort] = []
 
+    // Match only Type-C / MagSafe physical port controllers. Generic
+    // `AppleUSBHostPort` would sweep in internal DRD (dual-role device)
+    // ports — those have no physical connector and just confuse the UI.
     private static let candidateClasses = [
         "AppleHPMInterfaceType10", // USB-C ports on Apple silicon
         "AppleHPMInterfaceType11", // MagSafe 3
-        "AppleHPMInterfaceType12",
-        "AppleUSBCHostPort",
-        "AppleUSBHostPort"
+        "AppleHPMInterfaceType12"
     ]
 
     private var notifyPort: IONotificationPortRef?
@@ -92,6 +93,14 @@ final class USBCPortWatcher: ObservableObject {
               let dict = props?.takeRetainedValue() as? [String: Any] else {
             return nil
         }
+
+        // Sanity check: only return things that actually look like a physical
+        // Type-C or MagSafe port. Real ports have a "PortTypeDescription"
+        // and a name like "Port-USB-C@N" / "Port-MagSafe 3@N".
+        let portType = dict["PortTypeDescription"] as? String
+        let isRealPort = (portType == "USB-C" || portType?.hasPrefix("MagSafe") == true)
+            && serviceName.hasPrefix("Port-")
+        guard isRealPort else { return nil }
 
         var raw: [String: String] = [:]
         for (k, v) in dict { raw[k] = stringify(v) }

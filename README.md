@@ -27,7 +27,7 @@ Per port, in plain English:
 - **Active transports** — USB 2 / USB 3 / Thunderbolt / DisplayPort
 - **"Show technical details"** toggle revealing the underlying IOKit properties for engineers
 
-Right-click the menu bar icon for **Refresh**, **About**, and **Quit**.
+Right-click the menu bar icon for **Refresh**, a **Keep window open** toggle (handy for screenshots and demos), **About**, and **Quit**.
 
 ## Install
 

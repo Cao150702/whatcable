@@ -101,12 +101,26 @@ final class PowerSourceWatcher: ObservableObject {
     }
 
     private func parseOptions(_ value: Any?) -> [PowerOption] {
-        guard let arr = value as? [Any] else { return [] }
+        // CF arrays from IOKit don't always bridge cleanly to [Any] in Swift.
+        // Cast to NSArray and iterate — that's the reliable path.
+        guard let arr = value as? NSArray else { return [] }
         return arr.compactMap { parseOption($0) }
     }
 
     private func parseOption(_ value: Any?) -> PowerOption? {
-        guard let dict = value as? [String: Any] else { return nil }
+        let dict: [String: Any]?
+        if let d = value as? [String: Any] {
+            dict = d
+        } else if let nsd = value as? NSDictionary {
+            var converted: [String: Any] = [:]
+            for case let (key, val) as (String, Any) in nsd {
+                converted[key] = val
+            }
+            dict = converted
+        } else {
+            dict = nil
+        }
+        guard let dict else { return nil }
         let v = (dict["Voltage (mV)"] as? NSNumber)?.intValue ?? 0
         let i = (dict["Max Current (mA)"] as? NSNumber)?.intValue ?? 0
         let p = (dict["Max Power (mW)"] as? NSNumber)?.intValue ?? (v * i / 1000)
