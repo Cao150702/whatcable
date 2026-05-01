@@ -19,8 +19,8 @@ fi
 
 APP_NAME="WhatCable"
 BUNDLE_ID="com.bitmoor.whatcable"
-VERSION="0.5.4"
-BUILD_NUMBER="18"
+VERSION="0.5.5"
+BUILD_NUMBER="19"
 MIN_OS="14.0"
 CLI_PRODUCT="whatcable-cli"
 CLI_BIN_NAME="whatcable"
