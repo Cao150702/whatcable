@@ -48,7 +48,11 @@ struct ContentView: View {
                 ? portWatcher.ports.filter { $0.connectionActive == true }
                 : portWatcher.ports
             if visiblePorts.isEmpty {
-                emptyState
+                if portWatcher.ports.isEmpty {
+                    noPortsState
+                } else {
+                    nothingConnectedState
+                }
             } else {
                 ScrollView {
                     VStack(spacing: 12) {
@@ -114,7 +118,7 @@ struct ContentView: View {
         .padding(.vertical, 8)
     }
 
-    private var emptyState: some View {
+    private var noPortsState: some View {
         VStack(spacing: 8) {
             Image(systemName: "powerplug")
                 .font(.system(size: 40))
@@ -122,6 +126,23 @@ struct ContentView: View {
             Text("No USB-C ports detected")
                 .font(.headline)
             Text("This Mac doesn't seem to expose its port-controller services. Hit refresh, or check System Information → USB.")
+                .font(.caption)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 32)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.vertical, 40)
+    }
+
+    private var nothingConnectedState: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "cable.connector.slash")
+                .font(.system(size: 40))
+                .foregroundStyle(.secondary)
+            Text("Nothing connected")
+                .font(.headline)
+            Text("\(portWatcher.ports.count) USB-C port\(portWatcher.ports.count == 1 ? "" : "s") detected, but nothing is currently plugged in. Turn off \"Hide empty ports\" in Settings to see them.")
                 .font(.caption)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
