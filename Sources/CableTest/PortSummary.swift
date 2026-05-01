@@ -41,7 +41,7 @@ struct PortSummary {
 }
 
 extension PortSummary {
-    init(port: USBCPort) {
+    init(port: USBCPort, sources: [PowerSource] = [], identities: [PDIdentity] = []) {
         let connected = port.connectionActive == true
         let active = port.transportsActive
         let supported = port.transportsSupported
@@ -86,28 +86,70 @@ extension PortSummary {
             bullets.append("Optical cable")
         }
 
+        // Power summary from PD power sources
+        let usbPD = sources.first(where: { $0.name == "USB-PD" })
+        if let usbPD {
+            let maxW = Double(usbPD.maxPowerMW) / 1000
+            let roundedW = Int(maxW.rounded())
+            bullets.append("Charger advertises up to \(roundedW)W")
+            if let win = usbPD.winning {
+                bullets.append("Currently negotiated: \(win.voltsLabel) @ \(win.ampsLabel) (\(win.wattsLabel))")
+            }
+        }
+
+        // Cable e-marker (SOP'): the cable's own capabilities
+        let cableEmarker = identities.first(where: {
+            $0.endpoint == .sopPrime || $0.endpoint == .sopDoublePrime
+        })
+        if let cable = cableEmarker, let cv = cable.cableVDO {
+            bullets.append("Cable speed: \(cv.speed.label)")
+            bullets.append("Cable rated for \(cv.current.label) at up to \(cv.maxVolts)V (~\(cv.maxWatts)W)")
+            if cv.cableType == .active {
+                bullets.append("Active cable (contains signal-conditioning electronics)")
+            }
+        }
+
+        // Partner identity (SOP): what's connected
+        if let partner = identities.first(where: { $0.endpoint == .sop }),
+           let header = partner.idHeader {
+            let kind = header.ufpProductType != .undefined ? header.ufpProductType.label : header.dfpProductType.label
+            bullets.append("Connected device: \(kind) (vendor 0x\(String(format: "%04X", partner.vendorID)))")
+        }
+
         // Plug orientation
         if let orient = port.plugOrientation, orient != 0 {
             bullets.append("Plug inserted upside-down (handled automatically)")
         }
 
         // Headline + status
+        let chargerW: Int? = usbPD.map { Int((Double($0.maxPowerMW) / 1000).rounded()) }
+        let chargerSuffix = chargerW.map { " · \($0)W charger" } ?? ""
+        let cableSpeedSuffix: String = {
+            guard let cv = cableEmarker?.cableVDO else { return "" }
+            return " · \(cv.speed.label)"
+        }()
+        let _ = cableSpeedSuffix // available if we later want to fold into headlines
+
         if hasTB {
             self.status = .thunderboltCable
-            self.headline = "Thunderbolt / USB4"
+            self.headline = "Thunderbolt / USB4" + chargerSuffix
             self.subtitle = subtitleForCapabilities(usb3: true, dp: hasDP, emarker: hasEmarker)
         } else if hasUSB3 && hasDP {
             self.status = .displayCable
-            self.headline = "USB-C with video"
+            self.headline = "USB-C with video" + chargerSuffix
             self.subtitle = "Carrying both data and DisplayPort video."
         } else if hasUSB3 {
             self.status = .dataDevice
-            self.headline = "USB device"
+            self.headline = "USB device" + chargerSuffix
             self.subtitle = "SuperSpeed data link is active."
         } else if hasUSB2 && active.contains("USB2") && !hasUSB3 {
             self.status = .dataDevice
-            self.headline = "Slow USB device or charge-only cable"
+            self.headline = "Slow USB device or charge-only cable" + chargerSuffix
             self.subtitle = "Only USB 2.0 is active. If you expected high speed, the cable may not support it."
+        } else if usbPD != nil {
+            self.status = .charging
+            self.headline = "Charging" + chargerSuffix
+            self.subtitle = "Power is flowing. No data connection."
         } else if active.isEmpty && supported.contains("USB2") {
             self.status = .charging
             self.headline = "Charging only"

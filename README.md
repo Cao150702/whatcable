@@ -10,12 +10,27 @@ USB-C cables are notoriously hard to tell apart at a glance — the same connect
 
 For each USB-C / MagSafe port:
 
-- Whether anything is connected
-- A plain-English headline (Thunderbolt / USB4, USB device, Charging only, Slow USB / charge-only cable, …)
-- Whether the cable carries an e-marker chip
-- Active transports (USB 2 / USB 3 / Thunderbolt / DisplayPort)
-- Connected USB devices
-- A "Show technical details" toggle that reveals the underlying IOKit properties
+- **At-a-glance headline** — Thunderbolt / USB4, USB device, Charging only, Slow USB / charge-only cable, Nothing connected
+- **Cable speed** decoded from the e-marker chip (USB 2.0, 5/10/20/40/80 Gbps)
+- **Cable power rating** (3 A or 5 A, max 60 W / 100 W / 240 W) — what the cable itself can carry
+- **Charger output** — every PDO the connected charger advertises (e.g. 5V/9V/12V/15V/20V), with the currently negotiated voltage highlighted live
+- **Connected device identity** — vendor and product type, decoded from the partner's PD Discover Identity response
+- **Active transports** — USB 2 / USB 3 / Thunderbolt / DisplayPort
+- **A "Show technical details" toggle** that reveals the underlying IOKit properties for engineers
+
+Right-click the menu bar icon for **Refresh**, **About**, and **Quit**.
+
+## How it works
+
+WhatCable reads three families of IOKit services, no entitlements or private APIs required:
+
+| Service | What it gives us |
+| --- | --- |
+| `AppleHPMInterfaceType10/11` | Per-port state: connection, transports, plug orientation, e-marker presence |
+| `IOPortFeaturePowerSource` | Full PDO list from the connected source, with live "winning" PDO |
+| `IOPortTransportComponentCCUSBPDSOP` | PD Discover Identity VDOs for SOP (partner) and SOP' (cable e-marker) |
+
+The cable speed and power decoding follows the USB Power Delivery 3.x spec.
 
 ## Run from source
 
@@ -31,7 +46,7 @@ Requires macOS 14+ and Swift 5.9 (Xcode 15+).
 ./scripts/build-app.sh
 ```
 
-This produces a universal `dist/WhatCable.app` (arm64 + x86_64) and `dist/WhatCable.zip`.
+Produces a universal `dist/WhatCable.app` (arm64 + x86_64) and `dist/WhatCable.zip`.
 
 **Modes:**
 
@@ -64,12 +79,16 @@ To install locally:
 cp -R dist/WhatCable.app /Applications/
 ```
 
-## What's not implemented yet
+## Caveats
 
-- Specific cable speed numbers (10 / 20 / 40 Gbps) — needs PD VDO parsing from child IOKit services.
-- Specific power numbers (60W / 100W / 240W) — same.
-- Notarisation. The build is ad-hoc signed, which is fine for personal use but Gatekeeper will warn on first launch.
-- An iOS version. iOS sandboxing makes USB-C e-marker access much harder; this is macOS-only for now.
+- **Cable e-marker info only appears for cables that carry one.** Most USB-C cables under 60 W are unmarked. Any Thunderbolt / USB4 cable, any 5 A / 100 W+ cable, and most quality data cables will be e-marked.
+- **PD spec coverage:** decoder targets PD 3.0 / 3.1. PD 3.2 EPR variants may need tweaks once we see real data.
+- **Vendor IDs are shown numerically** — there's no bundled USB-IF vendor name database (yet).
+- **macOS only.** iOS sandboxing makes USB-C e-marker access much harder.
+
+## Releases
+
+Latest builds are on the [Releases page](https://github.com/darrylmorley/whatcable/releases).
 
 ## Credits
 

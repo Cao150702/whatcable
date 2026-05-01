@@ -3,6 +3,8 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var portWatcher = USBCPortWatcher()
     @StateObject private var deviceWatcher = USBWatcher()
+    @StateObject private var powerWatcher = PowerSourceWatcher()
+    @StateObject private var pdWatcher = PDIdentityWatcher()
     @EnvironmentObject private var refresh: RefreshSignal
     @State private var showAdvanced = false
 
@@ -19,6 +21,8 @@ struct ContentView: View {
                             PortCard(
                                 port: port,
                                 devices: matchingDevices(for: port),
+                                powerSources: powerWatcher.sources(for: port),
+                                identities: pdWatcher.identities(for: port),
                                 showAdvanced: showAdvanced
                             )
                         }
@@ -32,13 +36,19 @@ struct ContentView: View {
         .onAppear {
             portWatcher.start()
             deviceWatcher.start()
+            powerWatcher.start()
+            pdWatcher.start()
         }
         .onDisappear {
             portWatcher.stop()
             deviceWatcher.stop()
+            powerWatcher.stop()
+            pdWatcher.stop()
         }
         .onChange(of: refresh.tick) { _, _ in
             portWatcher.refresh()
+            powerWatcher.refresh()
+            pdWatcher.refresh()
         }
     }
 
@@ -112,9 +122,13 @@ struct ContentView: View {
 struct PortCard: View {
     let port: USBCPort
     let devices: [USBDevice]
+    let powerSources: [PowerSource]
+    let identities: [PDIdentity]
     let showAdvanced: Bool
 
-    var summary: PortSummary { PortSummary(port: port) }
+    var summary: PortSummary {
+        PortSummary(port: port, sources: powerSources, identities: identities)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -161,6 +175,11 @@ struct PortCard: View {
                 .padding(.leading, 48)
             }
 
+            if !powerSources.isEmpty {
+                PowerSourceList(sources: powerSources)
+                    .padding(.leading, 48)
+            }
+
             if showAdvanced {
                 Divider()
                 AdvancedPortDetails(port: port)
@@ -168,6 +187,37 @@ struct PortCard: View {
         }
         .padding(14)
         .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 10))
+    }
+}
+
+struct PowerSourceList: View {
+    let sources: [PowerSource]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ForEach(sources) { src in
+                if !src.options.isEmpty {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("\(src.name) profiles")
+                            .font(.caption).foregroundStyle(.secondary)
+                        ForEach(src.options.sorted(by: { $0.voltageMV < $1.voltageMV }), id: \.self) { opt in
+                            let isWinning = opt == src.winning
+                            HStack(spacing: 6) {
+                                Image(systemName: isWinning ? "checkmark.circle.fill" : "circle")
+                                    .foregroundStyle(isWinning ? Color.green : Color.secondary)
+                                    .font(.caption)
+                                Text("\(opt.voltsLabel) @ \(opt.ampsLabel) — \(opt.wattsLabel)")
+                                    .font(.callout.monospacedDigit())
+                                if isWinning {
+                                    Text("active").font(.caption2).foregroundStyle(.green)
+                                }
+                                Spacer()
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
