@@ -33,6 +33,9 @@ MACOS_DIR="${CONTENTS_DIR}/MacOS"
 RESOURCES_DIR="${CONTENTS_DIR}/Resources"
 ENTITLEMENTS="scripts/${APP_NAME}.entitlements"
 
+echo "==> Running tests"
+swift test
+
 echo "==> Cleaning previous build"
 rm -rf "${DIST_DIR}"
 mkdir -p "${MACOS_DIR}" "${RESOURCES_DIR}"
