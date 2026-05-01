@@ -111,6 +111,20 @@ Produces a universal `dist/WhatCable.app` (arm64 + x86_64) and `dist/WhatCable.z
 | `.env` with `DEVELOPER_ID` | Developer ID signed + hardened runtime. |
 | `.env` with `DEVELOPER_ID` + `NOTARY_PROFILE` | Full notarisation + stapled ticket. Gatekeeper-clean for everyone. |
 
+**Cutting a release:**
+
+```bash
+# write release-notes/v0.5.3.md first, then:
+./scripts/release.sh 0.5.3
+```
+
+The wrapper does the whole pipeline: bumps the version, runs build-app.sh
+(which builds, signs, notarises, smoke-tests, and bumps the local cask),
+tags and pushes the commit, creates the GitHub release with the notes
+file, verifies the uploaded asset's sha matches the local zip, copies the
+notes into the tap, and pushes the tap. Use `--dry-run` first to validate
+state. Requires `gh` (auth'd) and the env vars from `.env.example`.
+
 **One-time setup for full notarisation:**
 
 ```bash
