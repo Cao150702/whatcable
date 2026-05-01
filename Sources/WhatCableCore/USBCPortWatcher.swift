@@ -19,7 +19,8 @@ public final class USBCPortWatcher: ObservableObject {
         "AppleHPMInterfaceType10",
         "AppleHPMInterfaceType11",
         "AppleHPMInterfaceType12",
-        "AppleTCControllerType10"
+        "AppleTCControllerType10",
+        "AppleTCControllerType11"
     ]
 
     private var notifyPort: IONotificationPortRef?
