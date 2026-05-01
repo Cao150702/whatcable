@@ -135,10 +135,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         if event.type == .rightMouseUp {
             showMenu(from: sender)
         } else {
-            // ⌥-click flips the technical-details view, matching the macOS
-            // convention used by Wi-Fi / Volume / Bluetooth menus. Each click
-            // sets the state deterministically based on the current modifier.
-            Self.refreshSignal.showAdvanced = event.modifierFlags.contains(.option)
+            // ⌥-click momentarily reveals the technical-details view,
+            // matching the macOS convention used by Wi-Fi / Volume /
+            // Bluetooth menus. The flag is cleared when the popover closes
+            // (see popoverDidClose), so the persistent preference in
+            // AppSettings is what survives across opens.
+            Self.refreshSignal.optionHeld = event.modifierFlags.contains(.option)
             togglePopover(from: sender)
         }
     }
@@ -212,13 +214,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
     @objc private func menuQuit() {
         NSApp.terminate(nil)
     }
+
+    // MARK: - NSPopoverDelegate
+
+    nonisolated func popoverDidClose(_ notification: Notification) {
+        Task { @MainActor in
+            Self.refreshSignal.optionHeld = false
+        }
+    }
 }
 
 final class RefreshSignal: ObservableObject {
     @Published var tick: Int = 0
-    /// Mirrors the "Show technical details" preference. Settable from the
-    /// AppDelegate so a ⌥-click on the menu bar icon can flip it without
-    /// the user having to open Settings.
-    @Published var showAdvanced: Bool = false
+    /// Ephemeral momentary-reveal flag for the advanced IOKit detail view.
+    /// Set true while a ⌥-click on the menu bar icon is opening the popover,
+    /// cleared when the popover closes. The persistent preference lives on
+    /// `AppSettings.showTechnicalDetails`; the effective state is the OR
+    /// of the two.
+    @Published var optionHeld: Bool = false
     func bump() { tick &+= 1 }
 }

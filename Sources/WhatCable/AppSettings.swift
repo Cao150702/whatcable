@@ -14,6 +14,7 @@ final class AppSettings: ObservableObject {
         static let notifyOnChanges = "notifyOnChanges"
         static let hideEmptyPorts = "hideEmptyPorts"
         static let useMenuBarMode = "useMenuBarMode"
+        static let showTechnicalDetails = "showTechnicalDetails"
     }
 
     @Published var launchAtLogin: Bool {
@@ -49,6 +50,16 @@ final class AppSettings: ObservableObject {
         }
     }
 
+    /// Persistent preference for the advanced IOKit detail view. A momentary
+    /// reveal via ⌥-click on the menu bar icon is layered on top of this in
+    /// `RefreshSignal.optionHeld`.
+    @Published var showTechnicalDetails: Bool {
+        didSet {
+            guard showTechnicalDetails != oldValue else { return }
+            UserDefaults.standard.set(showTechnicalDetails, forKey: Keys.showTechnicalDetails)
+        }
+    }
+
     private init() {
         // Launch at Login is owned by the system; read its current state.
         self.launchAtLogin = SMAppService.mainApp.status == .enabled
@@ -62,6 +73,7 @@ final class AppSettings: ObservableObject {
         } else {
             self.useMenuBarMode = UserDefaults.standard.bool(forKey: Keys.useMenuBarMode)
         }
+        self.showTechnicalDetails = UserDefaults.standard.bool(forKey: Keys.showTechnicalDetails)
     }
 
     private func applyLaunchAtLogin(_ enabled: Bool) {
