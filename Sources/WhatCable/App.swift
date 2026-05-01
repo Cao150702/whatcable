@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import Combine
+import WhatCableCore
 
 @main
 struct WhatCableApp: App {

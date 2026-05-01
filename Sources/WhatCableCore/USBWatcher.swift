@@ -3,14 +3,16 @@ import IOKit
 import IOKit.usb
 
 @MainActor
-final class USBWatcher: ObservableObject {
-    @Published private(set) var devices: [USBDevice] = []
+public final class USBWatcher: ObservableObject {
+    @Published public private(set) var devices: [USBDevice] = []
 
     private var notifyPort: IONotificationPortRef?
     private var addedIter: io_iterator_t = 0
     private var removedIter: io_iterator_t = 0
 
-    func start() {
+    public init() {}
+
+    public func start() {
         guard notifyPort == nil else { return }
         let port = IONotificationPortCreate(kIOMainPortDefault)
         IONotificationPortSetDispatchQueue(port, DispatchQueue.main)
@@ -53,7 +55,7 @@ final class USBWatcher: ObservableObject {
         handleRemoved(iterator: removedIter)
     }
 
-    func stop() {
+    public func stop() {
         if addedIter != 0 { IOObjectRelease(addedIter); addedIter = 0 }
         if removedIter != 0 { IOObjectRelease(removedIter); removedIter = 0 }
         if let port = notifyPort {
@@ -140,4 +142,3 @@ final class USBWatcher: ObservableObject {
         }
     }
 }
-

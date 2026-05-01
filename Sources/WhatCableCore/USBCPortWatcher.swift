@@ -4,8 +4,8 @@ import IOKit
 /// Watches USB-C / MagSafe port-controller services. On Apple-silicon Macs the
 /// relevant class is `AppleHPMInterfaceType10` (USB-C) and `Type11` (MagSafe).
 @MainActor
-final class USBCPortWatcher: ObservableObject {
-    @Published private(set) var ports: [USBCPort] = []
+public final class USBCPortWatcher: ObservableObject {
+    @Published public private(set) var ports: [USBCPort] = []
 
     // Match only Type-C / MagSafe physical port controllers. Generic
     // `AppleUSBHostPort` would sweep in internal DRD (dual-role device)
@@ -25,7 +25,9 @@ final class USBCPortWatcher: ObservableObject {
     private var notifyPort: IONotificationPortRef?
     private var iterators: [io_iterator_t] = []
 
-    func start() {
+    public init() {}
+
+    public func start() {
         guard notifyPort == nil else { return }
         let port = IONotificationPortCreate(kIOMainPortDefault)
         IONotificationPortSetDispatchQueue(port, DispatchQueue.main)
@@ -48,7 +50,7 @@ final class USBCPortWatcher: ObservableObject {
         }
     }
 
-    func stop() {
+    public func stop() {
         for iter in iterators { IOObjectRelease(iter) }
         iterators.removeAll()
         if let port = notifyPort {
@@ -60,7 +62,7 @@ final class USBCPortWatcher: ObservableObject {
 
     /// Re-walk the registry. Property changes (cable plug/unplug) don't fire
     /// match notifications, so we expose this for manual polling.
-    func refresh() {
+    public func refresh() {
         ports.removeAll()
         for cls in Self.candidateClasses {
             let matching = IOServiceMatching(cls)

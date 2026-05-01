@@ -3,11 +3,11 @@ import Foundation
 /// USB Power Delivery 3.0 / 3.1 VDO decoders. We only parse the fields we
 /// surface — refer to the USB-PD spec (Universal Serial Bus Power Delivery
 /// Specification, Revision 3.1) for the full layout.
-enum PDVDO {
+public enum PDVDO {
 
     // MARK: ID Header VDO (always VDO[0])
 
-    enum ProductType: Int {
+    public enum ProductType: Int {
         case undefined = 0
         case pdusbHub = 1
         case pdusbPeripheral = 2
@@ -17,7 +17,7 @@ enum PDVDO {
         case vpd = 6            // VCONN-Powered Device
         case other = 7
 
-        var label: String {
+        public var label: String {
             switch self {
             case .undefined: return "Unspecified"
             case .pdusbHub: return "USB Hub"
@@ -31,18 +31,18 @@ enum PDVDO {
         }
     }
 
-    struct IDHeader {
-        let usbCommHost: Bool
-        let usbCommDevice: Bool
-        let modalOperation: Bool
+    public struct IDHeader: Hashable {
+        public let usbCommHost: Bool
+        public let usbCommDevice: Bool
+        public let modalOperation: Bool
         /// UFP product type (set on cables / peripherals)
-        let ufpProductType: ProductType
+        public let ufpProductType: ProductType
         /// DFP product type (set on hosts / hubs)
-        let dfpProductType: ProductType
-        let vendorID: Int
+        public let dfpProductType: ProductType
+        public let vendorID: Int
     }
 
-    static func decodeIDHeader(_ vdo: UInt32) -> IDHeader {
+    public static func decodeIDHeader(_ vdo: UInt32) -> IDHeader {
         IDHeader(
             usbCommHost: (vdo >> 31) & 1 == 1,
             usbCommDevice: (vdo >> 30) & 1 == 1,
@@ -55,14 +55,14 @@ enum PDVDO {
 
     // MARK: Cable VDO (passive or active, VDO[3] in PD 3.0+)
 
-    enum CableSpeed: Int {
+    public enum CableSpeed: Int {
         case usb20 = 0
         case usb32Gen1 = 1   // 5 Gbps
         case usb32Gen2 = 2   // 10 Gbps
         case usb4Gen3 = 3    // 20 Gbps (PD 3.0) / 40 Gbps (PD 3.1)
         case usb4Gen4 = 4    // 80 Gbps
 
-        var label: String {
+        public var label: String {
             switch self {
             case .usb20: return "USB 2.0 (480 Mbps)"
             case .usb32Gen1: return "USB 3.2 Gen 1 (5 Gbps)"
@@ -72,7 +72,7 @@ enum PDVDO {
             }
         }
 
-        var maxGbps: Double {
+        public var maxGbps: Double {
             switch self {
             case .usb20: return 0.48
             case .usb32Gen1: return 5
@@ -83,12 +83,12 @@ enum PDVDO {
         }
     }
 
-    enum CableCurrent: Int {
+    public enum CableCurrent: Int {
         case usbDefault = 0   // 900 mA / 1.5 A typical USB
         case threeAmp = 1
         case fiveAmp = 2
 
-        var maxAmps: Double {
+        public var maxAmps: Double {
             switch self {
             case .usbDefault: return 3.0   // be charitable; Type-C default current is 3A on cables
             case .threeAmp: return 3.0
@@ -96,7 +96,7 @@ enum PDVDO {
             }
         }
 
-        var label: String {
+        public var label: String {
             switch self {
             case .usbDefault: return "USB default"
             case .threeAmp: return "3 A"
@@ -105,23 +105,23 @@ enum PDVDO {
         }
     }
 
-    enum CableType: Int {
+    public enum CableType: Int {
         case passive = 0
         case active = 1
         case other = 2
     }
 
-    struct CableVDO {
-        let speed: CableSpeed
-        let current: CableCurrent
+    public struct CableVDO: Hashable {
+        public let speed: CableSpeed
+        public let current: CableCurrent
         /// Approx max wattage at the highest negotiated voltage (20V) the cable can carry.
-        let maxWatts: Int
-        let cableType: CableType
-        let vbusThroughCable: Bool
+        public let maxWatts: Int
+        public let cableType: CableType
+        public let vbusThroughCable: Bool
         /// Encoded "Maximum VBUS Voltage" field. 0=20V, 1=30V, 2=40V, 3=50V.
-        let maxVoltageEncoded: Int
+        public let maxVoltageEncoded: Int
 
-        var maxVolts: Int {
+        public var maxVolts: Int {
             switch maxVoltageEncoded {
             case 0: return 20
             case 1: return 30
@@ -132,7 +132,7 @@ enum PDVDO {
         }
     }
 
-    static func decodeCableVDO(_ vdo: UInt32, isActive: Bool) -> CableVDO {
+    public static func decodeCableVDO(_ vdo: UInt32, isActive: Bool) -> CableVDO {
         let speedBits = Int(vdo & 0b111)
         let speed = CableSpeed(rawValue: speedBits) ?? .usb20
         let vbusThrough = (vdo >> 4) & 1 == 1
@@ -164,7 +164,7 @@ enum PDVDO {
     // MARK: Helpers
 
     /// IOKit stores VDOs as 4-byte little-endian Data blobs. Decode to UInt32.
-    static func vdoFromData(_ data: Data) -> UInt32? {
+    public static func vdoFromData(_ data: Data) -> UInt32? {
         guard data.count >= 4 else { return nil }
         return data.withUnsafeBytes { buf in
             buf.loadUnaligned(as: UInt32.self).littleEndian

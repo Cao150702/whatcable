@@ -1,4 +1,5 @@
 import SwiftUI
+import WhatCableCore
 
 struct ContentView: View {
     @StateObject private var portWatcher = USBCPortWatcher()

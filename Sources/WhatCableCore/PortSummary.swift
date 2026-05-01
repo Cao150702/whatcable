@@ -1,9 +1,8 @@
 import Foundation
-import SwiftUI
 
 /// Plain-English interpretation of a USBCPort's raw IOKit data.
-struct PortSummary {
-    enum Status {
+public struct PortSummary {
+    public enum Status {
         case empty
         case charging
         case dataDevice
@@ -12,36 +11,21 @@ struct PortSummary {
         case unknown
     }
 
-    let status: Status
-    let headline: String
-    let subtitle: String
-    let bullets: [String]
+    public let status: Status
+    public let headline: String
+    public let subtitle: String
+    public let bullets: [String]
 
-    var icon: String {
-        switch status {
-        case .empty: return "powerplug"
-        case .charging: return "bolt.fill"
-        case .dataDevice: return "cable.connector"
-        case .thunderboltCable: return "bolt.horizontal.fill"
-        case .displayCable: return "display"
-        case .unknown: return "questionmark.circle"
-        }
-    }
-
-    var iconColor: Color {
-        switch status {
-        case .empty: return .secondary
-        case .charging: return .yellow
-        case .dataDevice: return .blue
-        case .thunderboltCable: return .purple
-        case .displayCable: return .teal
-        case .unknown: return .orange
-        }
+    public init(status: Status, headline: String, subtitle: String, bullets: [String]) {
+        self.status = status
+        self.headline = headline
+        self.subtitle = subtitle
+        self.bullets = bullets
     }
 }
 
 extension PortSummary {
-    init(port: USBCPort, sources: [PowerSource] = [], identities: [PDIdentity] = []) {
+    public init(port: USBCPort, sources: [PowerSource] = [], identities: [PDIdentity] = []) {
         let connected = port.connectionActive == true
         let active = port.transportsActive
         let supported = port.transportsSupported
@@ -132,11 +116,6 @@ extension PortSummary {
             return w > 0 ? w : nil
         }()
         let chargerSuffix = chargerW.map { " · \($0)W charger" } ?? ""
-        let cableSpeedSuffix: String = {
-            guard let cv = cableEmarker?.cableVDO else { return "" }
-            return " · \(cv.speed.label)"
-        }()
-        let _ = cableSpeedSuffix // available if we later want to fold into headlines
 
         if hasTB {
             self.status = .thunderboltCable

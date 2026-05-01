@@ -5,14 +5,16 @@ import IOKit
 /// Discover Identity response for the port partner (SOP) and any e-marker
 /// chips on the cable (SOP', SOP'').
 @MainActor
-final class PDIdentityWatcher: ObservableObject {
-    @Published private(set) var identities: [PDIdentity] = []
+public final class PDIdentityWatcher: ObservableObject {
+    @Published public private(set) var identities: [PDIdentity] = []
 
     private var notifyPort: IONotificationPortRef?
     private var addedIter: io_iterator_t = 0
     private var removedIter: io_iterator_t = 0
 
-    func start() {
+    public init() {}
+
+    public func start() {
         guard notifyPort == nil else { return }
         let port = IONotificationPortCreate(kIOMainPortDefault)
         IONotificationPortSetDispatchQueue(port, DispatchQueue.main)
@@ -42,14 +44,14 @@ final class PDIdentityWatcher: ObservableObject {
         handleRemoved(removedIter)
     }
 
-    func stop() {
+    public func stop() {
         if addedIter != 0 { IOObjectRelease(addedIter); addedIter = 0 }
         if removedIter != 0 { IOObjectRelease(removedIter); removedIter = 0 }
         if let p = notifyPort { IONotificationPortDestroy(p); notifyPort = nil }
         identities.removeAll()
     }
 
-    func refresh() {
+    public func refresh() {
         identities.removeAll()
         var iter: io_iterator_t = 0
         if IOServiceGetMatchingServices(kIOMainPortDefault,
@@ -123,7 +125,7 @@ final class PDIdentityWatcher: ObservableObject {
         )
     }
 
-    func identities(for port: USBCPort) -> [PDIdentity] {
+    public func identities(for port: USBCPort) -> [PDIdentity] {
         guard let key = port.portKey else { return [] }
         return identities.filter { $0.portKey == key }
     }
