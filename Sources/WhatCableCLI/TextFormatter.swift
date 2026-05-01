@@ -35,30 +35,46 @@ enum TextFormatter {
         let label = port.portDescription ?? port.serviceName
         let typeSuffix = port.portTypeDescription.map { " (\($0))" } ?? ""
 
-        var out = "=== \(label)\(typeSuffix) ===\n"
-        out += "\(summary.headline)\n"
-        out += "\(summary.subtitle)\n"
+        let header = "=== \(label)\(typeSuffix) ==="
+        var out = ANSI.wrap(ANSI.bold + ANSI.cyan, header) + "\n"
+
+        let headlineColor = color(for: summary.status)
+        out += ANSI.wrap(ANSI.bold + headlineColor, summary.headline) + "\n"
+        out += ANSI.wrap(ANSI.dim, summary.subtitle) + "\n"
+
         if !summary.bullets.isEmpty {
             out += "\n"
             for bullet in summary.bullets {
-                out += "  • \(bullet)\n"
+                out += "  " + ANSI.wrap(ANSI.gray, "•") + " \(bullet)\n"
             }
         }
 
         if let diag = ChargingDiagnostic(port: port, sources: sources, identities: identities) {
-            out += "\nCharging: \(diag.summary)\n"
-            out += "  \(diag.detail)\n"
+            let diagColor = diag.isWarning ? ANSI.yellow : ANSI.green
+            out += "\n" + ANSI.wrap(ANSI.bold, "Charging: ") + ANSI.wrap(diagColor, diag.summary) + "\n"
+            out += "  " + ANSI.wrap(ANSI.dim, diag.detail) + "\n"
         }
 
         if showRaw {
-            out += "\nRaw IOKit properties:\n"
+            out += "\n" + ANSI.wrap(ANSI.bold, "Raw IOKit properties:") + "\n"
             for key in port.rawProperties.keys.sorted() {
                 let value = port.rawProperties[key] ?? ""
-                out += "  \(key) = \(value)\n"
+                out += "  " + ANSI.wrap(ANSI.gray, key) + " = \(value)\n"
             }
         }
 
         return out
+    }
+
+    private static func color(for status: PortSummary.Status) -> String {
+        switch status {
+        case .empty: return ANSI.gray
+        case .charging: return ANSI.yellow
+        case .dataDevice: return ANSI.blue
+        case .thunderboltCable: return ANSI.magenta
+        case .displayCable: return ANSI.cyan
+        case .unknown: return ANSI.yellow
+        }
     }
 
     private static func filterSources(_ port: USBCPort, all: [PowerSource]) -> [PowerSource] {
