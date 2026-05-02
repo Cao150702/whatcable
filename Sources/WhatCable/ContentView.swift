@@ -9,7 +9,6 @@ struct ContentView: View {
     @EnvironmentObject private var refresh: RefreshSignal
     @ObservedObject private var settings = AppSettings.shared
     @ObservedObject private var updates = UpdateChecker.shared
-    @State private var showSettings = false
     @State private var portRefreshTask: Task<Void, Never>?
     @State private var portPollTask: Task<Void, Never>?
 
@@ -19,8 +18,8 @@ struct ContentView: View {
 
     var body: some View {
         Group {
-            if showSettings {
-                SettingsView(dismiss: { showSettings = false })
+            if refresh.showSettings {
+                SettingsView(dismiss: { refresh.showSettings = false })
             } else {
                 mainContent
             }
@@ -148,12 +147,13 @@ struct ContentView: View {
             .buttonStyle(.borderless)
             .help("Refresh")
             Button {
-                showSettings = true
+                refresh.showSettings = true
             } label: {
                 Image(systemName: "gearshape")
             }
             .buttonStyle(.borderless)
             .help("Settings")
+            .keyboardShortcut(",", modifiers: .command)
         }
         .padding(12)
     }
