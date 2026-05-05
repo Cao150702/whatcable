@@ -167,6 +167,10 @@ struct ContentView: View {
 
     private var footer: some View {
         HStack {
+            Button("Quit") { NSApplication.shared.terminate(nil) }
+                .buttonStyle(.borderless)
+                .font(.caption)
+                .foregroundStyle(.secondary)
             Spacer()
             Text("\(deviceWatcher.devices.count) USB device\(deviceWatcher.devices.count == 1 ? "" : "s")")
                 .font(.caption)
