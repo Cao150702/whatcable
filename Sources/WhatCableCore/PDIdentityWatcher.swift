@@ -126,11 +126,19 @@ public final class PDIdentityWatcher: ObservableObject {
     }
 
     nonisolated static func endpoint(from dict: [String: Any]) -> PDIdentity.Endpoint {
-        let name = endpointName(from: dict)
-        if name == "CC" {
-            return .sopPrime
+        if let name = (dict["ComponentName"] as? String)
+            ?? (dict["AddressDescription"] as? String)
+            ?? (dict["Address Description"] as? String) {
+            return PDIdentity.Endpoint(rawValue: name) ?? .unknown
         }
-        return PDIdentity.Endpoint(rawValue: name) ?? .unknown
+        // MagSafe CC transport has no ComponentName; map "CC" only from
+        // TransportTypeDescription so a future node with ComponentName="CC"
+        // is not misclassified as a cable e-marker.
+        switch dict["TransportTypeDescription"] as? String {
+        case "SOP": return .sop
+        case "SOP'", "CC": return .sopPrime
+        default: return .unknown
+        }
     }
 
     nonisolated static func parentPortIdentity(from dict: [String: Any]) -> (type: Int, number: Int) {
