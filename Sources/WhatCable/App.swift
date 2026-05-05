@@ -12,6 +12,11 @@ struct WhatCableApp: App {
         // a regular window, depending on AppSettings.useMenuBarMode).
         Settings { EmptyView() }
             .commands {
+                CommandGroup(replacing: .appInfo) {
+                    Button("About \(AppInfo.name)") {
+                        delegate.showAboutPanel()
+                    }
+                }
                 CommandGroup(replacing: .appSettings) {
                     Button("Settings…") {
                         delegate.showSettingsPanel(nil)
@@ -175,7 +180,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         menu.addItem(.init(title: "Settings…", action: #selector(menuSettings), keyEquivalent: ","))
         menu.addItem(.init(title: "Check for Updates…", action: #selector(menuCheckUpdates), keyEquivalent: ""))
         menu.addItem(.separator())
-        menu.addItem(.init(title: "About \(AppInfo.name)", action: #selector(menuAbout), keyEquivalent: ""))
+        menu.addItem(.init(title: "About \(AppInfo.name)", action: #selector(showAboutPanel), keyEquivalent: ""))
         menu.addItem(.init(title: "WhatCable on GitHub", action: #selector(menuHelp), keyEquivalent: ""))
         menu.addItem(.separator())
         menu.addItem(.init(title: "Quit \(AppInfo.name)", action: #selector(menuQuit), keyEquivalent: "q"))
@@ -219,7 +224,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         }
     }
 
-    @objc private func menuAbout() {
+    @objc func showAboutPanel() {
         NSApp.activate(ignoringOtherApps: true)
         let credits = NSAttributedString(
             string: "\(AppInfo.tagline)\n\nBuilt by \(AppInfo.credit).",
