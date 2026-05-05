@@ -17,8 +17,8 @@ public enum SystemPower {
 
 extension ChargingDiagnostic {
     /// Convenience: fetches the system adapter via IOKit and constructs
-    /// a diagnostic. Darwin-only sugar; on Linux callers must pass
-    /// `adapter:` explicitly to the core init.
+    /// a diagnostic. Callers that need a custom adapter (e.g. tests)
+    /// can use the core init that takes `adapter:` explicitly.
     public init?(
         port: USBCPort,
         sources: [PowerSource],

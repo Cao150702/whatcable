@@ -44,7 +44,7 @@ public struct CableSnapshot: Equatable {
 /// `watch()` semantics:
 /// - Emits an initial snapshot immediately.
 /// - After that, emits only when the snapshot actually changes.
-/// - Cancellation tears down underlying timers / udev / netlink sources
+/// - Cancellation tears down underlying IOKit notifications and timers
 ///   via the stream's `onTermination` handler.
 /// - Errors finish the stream; backends must not retry silently.
 public protocol CableSnapshotProvider: Sendable {
