@@ -17,6 +17,11 @@ struct WhatCableApp: App {
                         delegate.showAboutPanel()
                     }
                 }
+                CommandGroup(after: .appInfo) {
+                    Button("Check for Updates…") {
+                        UpdateChecker.shared.check(silent: false)
+                    }
+                }
                 CommandGroup(replacing: .appSettings) {
                     Button("Settings…") {
                         delegate.showSettingsPanel(nil)
