@@ -11,6 +11,14 @@ struct WhatCableApp: App {
         // Headless — UI is owned by AppDelegate (status item + popover, or
         // a regular window, depending on AppSettings.useMenuBarMode).
         Settings { EmptyView() }
+            .commands {
+                CommandGroup(replacing: .appSettings) {
+                    Button("Settings…") {
+                        delegate.showSettingsPanel(nil)
+                    }
+                    .keyboardShortcut(",", modifiers: .command)
+                }
+            }
     }
 }
 
@@ -164,7 +172,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         pinItem.state = isPinned ? .on : .off
         menu.addItem(pinItem)
         menu.addItem(.separator())
+        menu.addItem(.init(title: "Settings…", action: #selector(menuSettings), keyEquivalent: ","))
         menu.addItem(.init(title: "Check for Updates…", action: #selector(menuCheckUpdates), keyEquivalent: ""))
+        menu.addItem(.separator())
         menu.addItem(.init(title: "About \(AppInfo.name)", action: #selector(menuAbout), keyEquivalent: ""))
         menu.addItem(.init(title: "WhatCable on GitHub", action: #selector(menuHelp), keyEquivalent: ""))
         menu.addItem(.separator())
@@ -183,6 +193,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
 
     @objc private func menuRefresh() {
         Self.refreshSignal.bump()
+    }
+
+    @objc private func menuSettings() {
+        showSettings()
+    }
+
+    @objc func showSettingsPanel(_ sender: Any?) {
+        showSettings()
+    }
+
+    private func showSettings() {
+        NSApp.activate(ignoringOtherApps: true)
+        Self.refreshSignal.showSettings = true
+        if AppSettings.shared.useMenuBarMode {
+            if let button = statusItem?.button, let popover, !popover.isShown {
+                togglePopover(from: button)
+            }
+        } else {
+            if let window {
+                window.makeKeyAndOrderFront(nil)
+            } else {
+                setUpWindowMode()
+            }
+        }
     }
 
     @objc private func menuAbout() {
@@ -220,6 +254,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
     nonisolated func popoverDidClose(_ notification: Notification) {
         Task { @MainActor in
             Self.refreshSignal.optionHeld = false
+            Self.refreshSignal.showSettings = false
         }
     }
 }
@@ -232,5 +267,7 @@ final class RefreshSignal: ObservableObject {
     /// `AppSettings.showTechnicalDetails`; the effective state is the OR
     /// of the two.
     @Published var optionHeld: Bool = false
+    @Published var showSettings: Bool = false
+
     func bump() { tick &+= 1 }
 }
