@@ -215,6 +215,10 @@ struct ContentView: View {
         if !powerWatcher.sources(for: port).isEmpty { return true }
         if !pdWatcher.identities(for: port).isEmpty { return true }
         if !matchingDevices(for: port).isEmpty { return true }
+        // MagSafe holds connectionActive=true for several seconds after unplug,
+        // so we only fall back to it for regular USB-C ports where it is reliable.
+        let isMagSafe = port.portTypeDescription?.hasPrefix("MagSafe") == true
+        if !isMagSafe && port.connectionActive == true { return true }
         return false
     }
 
