@@ -254,6 +254,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
     nonisolated func popoverDidClose(_ notification: Notification) {
         Task { @MainActor in
             Self.refreshSignal.optionHeld = false
+            Self.refreshSignal.showSettings = false
         }
     }
 }
