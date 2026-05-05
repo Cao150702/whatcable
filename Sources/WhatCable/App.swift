@@ -1,4 +1,3 @@
-#if os(macOS)
 import SwiftUI
 import AppKit
 import Combine
@@ -287,18 +286,3 @@ final class RefreshSignal: ObservableObject {
 
     func bump() { tick &+= 1 }
 }
-
-#else
-import Foundation
-
-/// Linux stub. WhatCable.app is a macOS menu bar app, but SwiftPM still
-/// builds the executable target on Linux during `swift test`, so the linker
-/// needs an `@main`. Whatcable on Linux ships as `whatcable-cli` only.
-@main
-struct WhatCableLinuxStub {
-    static func main() {
-        FileHandle.standardError.write(Data("WhatCable.app is macOS only. Use whatcable-cli on Linux.\n".utf8))
-        exit(1)
-    }
-}
-#endif

@@ -1,4 +1,3 @@
-#if os(macOS)
 import Foundation
 import AppKit
 import os.log
@@ -203,4 +202,3 @@ private struct InstallError: LocalizedError {
     init(_ message: String) { self.errorDescription = message }
 }
 
-#endif

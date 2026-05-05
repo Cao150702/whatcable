@@ -1,11 +1,6 @@
 import Foundation
 import WhatCableCore
-
-#if canImport(WhatCableDarwinBackend)
 import WhatCableDarwinBackend
-#elseif canImport(WhatCableLinuxBackend)
-import WhatCableLinuxBackend
-#endif
 
 @main
 struct WhatCableCLI {
@@ -36,12 +31,7 @@ struct WhatCableCLI {
             exit(2)
         }
 
-        #if canImport(WhatCableDarwinBackend) || canImport(WhatCableLinuxBackend)
         let provider = makeDefaultSnapshotProvider()
-        #else
-        FileHandle.standardError.write(Data("whatcable: no backend available on this platform\n".utf8))
-        exit(1)
-        #endif
 
         if watch {
             await runWatch(provider: provider, asJSON: asJSON, showRaw: showRaw)

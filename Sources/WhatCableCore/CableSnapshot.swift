@@ -1,7 +1,6 @@
 import Foundation
 
-/// External power adapter info, platform-agnostic. Populated by the Darwin
-/// backend from IOKit, or by the Linux backend from sysfs (where exposed).
+/// External power adapter info. Populated by the Darwin backend from IOKit.
 public struct AdapterInfo: Hashable {
     public let watts: Int?
     public let isCharging: Bool?

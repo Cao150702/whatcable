@@ -1,4 +1,3 @@
-#if os(macOS)
 import Foundation
 import IOKit
 import WhatCableCore
@@ -222,4 +221,3 @@ public final class PDIdentityWatcher: ObservableObject {
     }
 }
 
-#endif

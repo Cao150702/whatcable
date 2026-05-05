@@ -1,4 +1,3 @@
-#if os(macOS)
 import Foundation
 import AppKit
 import UserNotifications
@@ -153,4 +152,3 @@ final class UpdateChecker: ObservableObject {
     }
 }
 
-#endif

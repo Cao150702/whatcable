@@ -1,4 +1,3 @@
-#if os(macOS)
 import Foundation
 import WhatCableCore
 
@@ -84,4 +83,3 @@ public func makeDefaultSnapshotProvider() -> any CableSnapshotProvider {
     DarwinSnapshotProvider()
 }
 
-#endif
