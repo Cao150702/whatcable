@@ -18,9 +18,9 @@ if [[ -f ".env" ]]; then
 fi
 
 APP_NAME="WhatCable"
-BUNDLE_ID="com.bitmoor.whatcable"
-VERSION="0.5.14"
-BUILD_NUMBER="28"
+BUNDLE_ID="uk.whatcable.whatcable"
+VERSION="0.6.0"
+BUILD_NUMBER="29"
 MIN_OS="14.0"
 CLI_PRODUCT="whatcable-cli"
 CLI_BIN_NAME="whatcable"
@@ -95,6 +95,8 @@ cat > "${CONTENTS_DIR}/Info.plist" <<PLIST
     <string>${VERSION}</string>
     <key>CFBundleVersion</key>
     <string>${BUILD_NUMBER}</string>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.utilities</string>
     <key>LSMinimumSystemVersion</key>
     <string>${MIN_OS}</string>
     <key>LSUIElement</key>

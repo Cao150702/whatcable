@@ -8,7 +8,7 @@ import os.log
 final class AppSettings: ObservableObject {
     static let shared = AppSettings()
 
-    private nonisolated static let log = Logger(subsystem: "com.bitmoor.whatcable", category: "settings")
+    private nonisolated static let log = Logger(subsystem: "uk.whatcable.whatcable", category: "settings")
 
     private enum Keys {
         static let notifyOnChanges = "notifyOnChanges"

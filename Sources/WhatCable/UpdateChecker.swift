@@ -16,7 +16,7 @@ struct AvailableUpdate: Equatable {
 final class UpdateChecker: ObservableObject {
     static let shared = UpdateChecker()
 
-    private nonisolated static let log = Logger(subsystem: "com.bitmoor.whatcable", category: "updates")
+    private nonisolated static let log = Logger(subsystem: "uk.whatcable.whatcable", category: "updates")
     private static let endpoint = URL(string: "https://api.github.com/repos/darrylmorley/whatcable/releases/latest")!
     private static let pollInterval: TimeInterval = 6 * 60 * 60 // 6h
 

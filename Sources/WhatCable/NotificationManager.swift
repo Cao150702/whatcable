@@ -14,7 +14,7 @@ import WhatCableDarwinBackend
 final class NotificationManager {
     static let shared = NotificationManager()
 
-    private nonisolated static let log = Logger(subsystem: "com.bitmoor.whatcable", category: "notifications")
+    private nonisolated static let log = Logger(subsystem: "uk.whatcable.whatcable", category: "notifications")
 
     private let usbWatcher = USBWatcher()
     private let powerWatcher = PowerSourceWatcher()

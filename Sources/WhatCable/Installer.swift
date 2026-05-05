@@ -8,7 +8,8 @@ import os.log
 @MainActor
 final class Installer: ObservableObject {
     static let shared = Installer()
-    private nonisolated static let log = Logger(subsystem: "com.bitmoor.whatcable", category: "installer")
+    private nonisolated static let log = Logger(subsystem: "uk.whatcable.whatcable", category: "installer")
+    private static let expectedBundleID = "uk.whatcable.whatcable"
 
     enum State: Equatable {
         case idle
@@ -107,7 +108,7 @@ final class Installer: ObservableObject {
         }
         // Check bundle ID is exactly what we expect.
         let bundleID = Bundle(url: new)?.bundleIdentifier ?? ""
-        if bundleID != "com.bitmoor.whatcable" {
+        if bundleID != Self.expectedBundleID {
             throw InstallError("Unexpected bundle identifier: \(bundleID)")
         }
         // Verify signature structure is valid.

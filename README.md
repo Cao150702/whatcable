@@ -12,6 +12,9 @@ USB-C hides a lot under one connector. Anything from a USB 2.0 charge-only cable
 
 ![WhatCable popover](docs/screenshot.png)
 
+> [!IMPORTANT]
+> **Upgrading from 0.5.x to 0.6.0?** WhatCable's bundle ID changed from `com.bitmoor.whatcable` to `uk.whatcable.whatcable` in 0.6.0 to match the new `whatcable.uk` domain. The in-app "Check for Updates" path in 0.5.x will refuse to install 0.6.0 because the downloaded bundle ID won't match what it expects. Upgrade through Homebrew (`brew upgrade --cask whatcable`) or by downloading [the latest release zip](https://github.com/darrylmorley/whatcable/releases/latest) and replacing `WhatCable.app` manually. Your preferences and notification permissions will reset on first launch of 0.6.0; re-enable launch-at-login from Settings if you had it on. This only affects the 0.5.x → 0.6.0 transition.
+
 ## What it shows
 
 Per port, in plain English:
@@ -38,6 +41,8 @@ Click the **gear icon** in the popover header to open Settings, where you can:
 Right-click the menu bar icon for **Refresh**, a **Keep window open** toggle (handy for screenshots and demos), **Check for Updates…**, **About**, **WhatCable on GitHub**, and **Quit**.
 
 ## Install
+
+Visit [whatcable.uk](https://whatcable.uk) for an overview and screenshots, or install directly below.
 
 Download the latest `WhatCable.zip` from the [Releases page](https://github.com/darrylmorley/whatcable/releases/latest), unzip, and drag `WhatCable.app` to `/Applications`.
 
