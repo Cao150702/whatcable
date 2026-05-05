@@ -167,7 +167,7 @@ WhatCable reads USB-C port state directly from IOKit on your Mac. All of that ha
 
 ## Contributing
 
-Issues and PRs welcome. The code is small and tries to stay readable. Start at [`Sources/WhatCable/ContentView.swift`](Sources/WhatCable/ContentView.swift) for the UI, [`Sources/WhatCableCore/PortSummary.swift`](Sources/WhatCableCore/PortSummary.swift) for the plain-English logic, or [`Sources/WhatCableCore/PDVDO.swift`](Sources/WhatCableCore/PDVDO.swift) for the bit-twiddling. The diagnostic engine lives in `WhatCableCore`, which is shared by the menu bar app and the `whatcable` CLI in `Sources/WhatCableCLI/`.
+Issues and PRs welcome. The code is small and tries to stay readable. Start at [`Sources/WhatCable/ContentView.swift`](Sources/WhatCable/ContentView.swift) for the UI, [`Sources/WhatCableCore/PortSummary.swift`](Sources/WhatCableCore/PortSummary.swift) for the plain-English logic, or [`Sources/WhatCableCore/PDVDO.swift`](Sources/WhatCableCore/PDVDO.swift) for the bit-twiddling. Cross-platform models and the diagnostic engine live in `WhatCableCore`; the IOKit watchers (port state, PD identity, power sources, USB devices) live in [`Sources/WhatCableDarwinBackend/`](Sources/WhatCableDarwinBackend/). The same `WhatCableCore` powers the menu bar app and the `whatcable` CLI in [`Sources/WhatCableCLI/`](Sources/WhatCableCLI/).
 
 ## Credits
 
