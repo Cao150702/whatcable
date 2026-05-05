@@ -22,6 +22,11 @@ struct WhatCableApp: App {
                         UpdateChecker.shared.check(silent: false)
                     }
                 }
+                CommandGroup(replacing: .help) {
+                    Button("WhatCable on GitHub") {
+                        NSWorkspace.shared.open(AppInfo.helpURL)
+                    }
+                }
                 CommandGroup(replacing: .appSettings) {
                     Button("Settings…") {
                         delegate.showSettingsPanel(nil)
