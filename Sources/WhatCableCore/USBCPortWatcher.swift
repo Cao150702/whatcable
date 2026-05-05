@@ -25,6 +25,11 @@ public final class USBCPortWatcher: ObservableObject {
 
     private var notifyPort: IONotificationPortRef?
     private var iterators: [io_iterator_t] = []
+    // Interest notifications registered per-port so we hear about property
+    // changes (connection state, contract negotiation) as they happen, instead
+    // of relying purely on polling. Keyed by registry entry ID so we don't
+    // double-register when a port is rediscovered during a manual refresh.
+    private var interestNotifications: [UInt64: io_object_t] = [:]
 
     public init() {}
 
@@ -54,6 +59,8 @@ public final class USBCPortWatcher: ObservableObject {
     public func stop() {
         for iter in iterators { IOObjectRelease(iter) }
         iterators.removeAll()
+        for (_, n) in interestNotifications { IOObjectRelease(n) }
+        interestNotifications.removeAll()
         if let port = notifyPort {
             IONotificationPortDestroy(port)
             notifyPort = nil
@@ -62,23 +69,42 @@ public final class USBCPortWatcher: ObservableObject {
     }
 
     /// Re-walk the registry. Property changes (cable plug/unplug) don't fire
-    /// match notifications, so we expose this for manual polling.
+    /// match notifications, so callers poll this on demand. Builds the new
+    /// list in a local array and assigns once, so observers see a single
+    /// transition instead of an empty intermediate state. Skips the
+    /// assignment entirely when nothing changed, which keeps the UI calm
+    /// when refresh() is called speculatively after every device event.
     public func refresh() {
-        ports.removeAll()
+        var rebuilt: [USBCPort] = []
         for cls in Self.candidateClasses {
             let matching = IOServiceMatching(cls)
             var iter: io_iterator_t = 0
             if IOServiceGetMatchingServices(kIOMainPortDefault, matching, &iter) == KERN_SUCCESS {
-                drain(iterator: iter)
+                while case let service = IOIteratorNext(iter), service != 0 {
+                    if let port = makePort(from: service),
+                       !rebuilt.contains(where: { $0.id == port.id }) {
+                        rebuilt.append(port)
+                        registerInterest(for: service, entryID: port.id)
+                    }
+                    IOObjectRelease(service)
+                }
                 IOObjectRelease(iter)
             }
         }
+        rebuilt.sort { lhs, rhs in
+            let lhsActive = lhs.connectionActive == true
+            let rhsActive = rhs.connectionActive == true
+            if lhsActive != rhsActive { return lhsActive }
+            return lhs.serviceName < rhs.serviceName
+        }
+        if rebuilt != ports { ports = rebuilt }
     }
 
     private func drain(iterator: io_iterator_t) {
         while case let service = IOIteratorNext(iterator), service != 0 {
             if let port = makePort(from: service), !ports.contains(where: { $0.id == port.id }) {
                 ports.append(port)
+                registerInterest(for: service, entryID: port.id)
             }
             IOObjectRelease(service)
         }
@@ -88,6 +114,32 @@ public final class USBCPortWatcher: ObservableObject {
             let rhsActive = rhs.connectionActive == true
             if lhsActive != rhsActive { return lhsActive }
             return lhs.serviceName < rhs.serviceName
+        }
+    }
+
+    /// Subscribe to property/state changes on a port controller. The kernel
+    /// fires `kIOMessageServicePropertyChange` (and related lifecycle
+    /// messages) when a cable is plugged or unplugged, so this gives us a
+    /// timely refresh trigger that doesn't depend on polling.
+    private func registerInterest(for service: io_service_t, entryID: UInt64) {
+        guard let notifyPort, interestNotifications[entryID] == nil else { return }
+        let selfPtr = Unmanaged.passUnretained(self).toOpaque()
+        let cb: IOServiceInterestCallback = { refcon, _, _, _ in
+            guard let refcon else { return }
+            let watcher = Unmanaged<USBCPortWatcher>.fromOpaque(refcon).takeUnretainedValue()
+            Task { @MainActor in watcher.refresh() }
+        }
+        var notification: io_object_t = 0
+        let result = IOServiceAddInterestNotification(
+            notifyPort,
+            service,
+            kIOGeneralInterest,
+            cb,
+            selfPtr,
+            &notification
+        )
+        if result == KERN_SUCCESS {
+            interestNotifications[entryID] = notification
         }
     }
 

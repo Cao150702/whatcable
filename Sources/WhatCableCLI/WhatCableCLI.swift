@@ -21,9 +21,10 @@ struct WhatCableCLI {
         let showRaw = args.contains("--raw")
         let asJSON = args.contains("--json")
         let watch = args.contains("--watch")
+        let report = args.contains("--report")
 
         // Reject unknown flags so typos don't silently produce default output.
-        let knownFlags: Set<String> = ["--raw", "--json", "--watch", "-h", "--help", "--version"]
+        let knownFlags: Set<String> = ["--raw", "--json", "--watch", "--report", "-h", "--help", "--version"]
         for arg in args where arg.hasPrefix("-") && !knownFlags.contains(arg) {
             FileHandle.standardError.write(Data("whatcable: unknown option \(arg)\n".utf8))
             FileHandle.standardError.write(Data(helpText.utf8))
@@ -43,6 +44,11 @@ struct WhatCableCLI {
         portWatcher.refresh()
         powerWatcher.refresh()
         pdWatcher.refresh()
+
+        if report {
+            printCableReports(identities: pdWatcher.identities)
+            return
+        }
 
         if asJSON {
             do {
@@ -77,8 +83,35 @@ struct WhatCableCLI {
       --watch        Continuously monitor for changes (Ctrl+C to exit)
       --json         Output as JSON instead of human-readable text
       --raw          Include raw IOKit properties for each port
+      --report       Print a cable report (markdown + GitHub URL) and exit
       --version      Print version and exit
       -h, --help     Show this help and exit
 
     """
+}
+
+private func printCableReports(identities: [PDIdentity]) {
+    let cables = identities.filter {
+        $0.endpoint == .sopPrime || $0.endpoint == .sopDoublePrime
+    }
+    if cables.isEmpty {
+        print("No cable e-markers detected. Plug in an e-marked USB-C cable and try again.")
+        print("(Most cables under 60W don't carry an e-marker, so there's nothing to report on those.)")
+        return
+    }
+    for (i, identity) in cables.enumerated() {
+        if cables.count > 1 {
+            print("=== Cable \(i + 1) of \(cables.count) ===")
+            print("")
+        }
+        guard let payload = CableReport.payload(
+            for: identity,
+            includeSystemInfo: true
+        ) else { continue }
+        print(payload.markdown)
+        print("")
+        print("Open in GitHub to file a report:")
+        print(payload.githubURL.absoluteString)
+        print("")
+    }
 }

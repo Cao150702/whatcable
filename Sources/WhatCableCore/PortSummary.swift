@@ -25,8 +25,22 @@ public struct PortSummary {
 }
 
 extension PortSummary {
-    public init(port: USBCPort, sources: [PowerSource] = [], identities: [PDIdentity] = []) {
-        let connected = port.connectionActive == true
+    /// - Parameter isConnectedOverride: Pass `true`/`false` to bypass the
+    ///   `port.connectionActive` flag. The menu-bar UI sets this from a live
+    ///   union of the device/power/PD watchers because some Apple-silicon
+    ///   controllers (notably AppleHPMInterfaceType11 / MagSafe) hold
+    ///   ConnectionActive=true for several seconds after unplug, which left
+    ///   the UI showing a phantom "Connected" card. Pass `nil` (the default)
+    ///   to fall back to `port.connectionActive` for callers that don't
+    ///   track the live signals (CLI / JSON snapshots).
+    public init(
+        port: USBCPort,
+        sources: [PowerSource] = [],
+        identities: [PDIdentity] = [],
+        devices: [USBDevice] = [],
+        isConnectedOverride: Bool? = nil
+    ) {
+        let connected = isConnectedOverride ?? (port.connectionActive == true)
         let active = port.transportsActive
         let supported = port.transportsSupported
         let hasUSB3 = active.contains("USB3") || port.superSpeedActive == true

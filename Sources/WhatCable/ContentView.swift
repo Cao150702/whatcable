@@ -10,6 +10,8 @@ struct ContentView: View {
     @ObservedObject private var settings = AppSettings.shared
     @ObservedObject private var updates = UpdateChecker.shared
     @State private var showSettings = false
+    @State private var portRefreshTask: Task<Void, Never>?
+    @State private var portPollTask: Task<Void, Never>?
 
     private var showAdvanced: Bool {
         settings.showTechnicalDetails || refresh.optionHeld
@@ -28,8 +30,13 @@ struct ContentView: View {
             deviceWatcher.start()
             powerWatcher.start()
             pdWatcher.start()
+            startPortPoll()
         }
         .onDisappear {
+            portRefreshTask?.cancel()
+            portRefreshTask = nil
+            portPollTask?.cancel()
+            portPollTask = nil
             portWatcher.stop()
             deviceWatcher.stop()
             powerWatcher.stop()
@@ -39,6 +46,48 @@ struct ContentView: View {
             portWatcher.refresh()
             powerWatcher.refresh()
             pdWatcher.refresh()
+        }
+        // Port controller services don't fire IOKit match notifications when
+        // their connection state flips, so we re-poll the port watcher
+        // whenever any of the three live signals (device add/remove, power
+        // source add/remove, PD identity add/remove) changes. Debounced so a
+        // single plug event, which can fire all three within a few ms,
+        // produces one refresh, with a backoff to catch slow controllers.
+        .onChange(of: deviceWatcher.devices) { _, _ in scheduleLivePortRefresh() }
+        .onChange(of: powerWatcher.sources) { _, _ in scheduleLivePortRefresh() }
+        .onChange(of: pdWatcher.identities) { _, _ in scheduleLivePortRefresh() }
+    }
+
+    private func scheduleLivePortRefresh() {
+        portRefreshTask?.cancel()
+        portRefreshTask = Task { @MainActor in
+            // Some port controllers (notably AppleHPMInterfaceType11 / MagSafe)
+            // hold ConnectionActive=true for several seconds after unplug, so
+            // we re-poll over a long backoff instead of guessing one delay.
+            // refresh() is a no-op when nothing changed, so extra polls are
+            // cheap and never cause flicker.
+            for delay in [150, 500, 1500, 3000, 6000] {
+                try? await Task.sleep(for: .milliseconds(delay))
+                guard !Task.isCancelled else { return }
+                portWatcher.refresh()
+            }
+        }
+    }
+
+    /// Background safety net: poll the port watcher once a second while the
+    /// popover is visible. Catches slow-updating controllers that don't fire
+    /// IOKit interest notifications when their connection state flips, and
+    /// covers state changes that happen outside the burst window triggered
+    /// by scheduleLivePortRefresh. The conditional assignment in
+    /// USBCPortWatcher.refresh() means polls are free when nothing changed.
+    private func startPortPoll() {
+        portPollTask?.cancel()
+        portPollTask = Task { @MainActor in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1))
+                guard !Task.isCancelled else { return }
+                portWatcher.refresh()
+            }
         }
     }
 
@@ -50,7 +99,7 @@ struct ContentView: View {
             }
             Divider()
             let visiblePorts = settings.hideEmptyPorts
-                ? portWatcher.ports.filter { $0.connectionActive == true }
+                ? portWatcher.ports.filter { isPortLive($0) }
                 : portWatcher.ports
             if visiblePorts.isEmpty {
                 if portWatcher.ports.isEmpty {
@@ -67,6 +116,7 @@ struct ContentView: View {
                                 devices: matchingDevices(for: port),
                                 powerSources: powerWatcher.sources(for: port),
                                 identities: pdWatcher.identities(for: port),
+                                isLive: isPortLive(port),
                                 showAdvanced: showAdvanced
                             )
                         }
@@ -156,6 +206,18 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    /// Live-signal check that bypasses the unreliable `port.connectionActive`
+    /// flag. A port is considered live if any of the three IOKit watchers
+    /// (devices, power sources, PD identities) has at least one entry tied
+    /// to it. Each watcher tracks add/terminate via real notifications, so
+    /// their union reflects the current physical state.
+    private func isPortLive(_ port: USBCPort) -> Bool {
+        if !powerWatcher.sources(for: port).isEmpty { return true }
+        if !pdWatcher.identities(for: port).isEmpty { return true }
+        if !matchingDevices(for: port).isEmpty { return true }
+        return false
+    }
+
     /// Match USB devices to their physical port. The IOKit relationship
     /// isn't direct: USB devices live under the XHCI controller subtree,
     /// physical ports under the SPMI/HPM subtree. Two strategies, in order:
@@ -175,7 +237,6 @@ struct ContentView: View {
     /// is worse than showing none, and it caused the bug that issue #21
     /// reported.
     private func matchingDevices(for port: USBCPort) -> [USBDevice] {
-        guard port.connectionActive == true else { return [] }
         guard portCarriesUSB(port) else { return [] }
         let byPortName = deviceWatcher.devices.filter { $0.controllerPortName == port.serviceName }
         if !byPortName.isEmpty {
@@ -271,10 +332,27 @@ struct PortCard: View {
     let devices: [USBDevice]
     let powerSources: [PowerSource]
     let identities: [PDIdentity]
+    /// Authoritative connection state derived from the live IOKit watchers,
+    /// passed in from the parent so we don't have to consult them from here
+    /// and so PortSummary doesn't fall back to the unreliable
+    /// `port.connectionActive` property.
+    let isLive: Bool
     let showAdvanced: Bool
 
+    @State private var reportingCable: PDIdentity?
+
     var summary: PortSummary {
-        PortSummary(port: port, sources: powerSources, identities: identities)
+        PortSummary(
+            port: port,
+            sources: powerSources,
+            identities: identities,
+            devices: devices,
+            isConnectedOverride: isLive
+        )
+    }
+
+    private var cableEmarker: PDIdentity? {
+        identities.first { $0.endpoint == .sopPrime || $0.endpoint == .sopDoublePrime }
     }
 
     var body: some View {
@@ -310,7 +388,7 @@ struct PortCard: View {
                 .padding(.leading, 48)
             }
 
-            if !devices.isEmpty && port.connectionActive == true {
+            if !devices.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Connected device\(devices.count == 1 ? "" : "s")")
                         .font(.caption).foregroundStyle(.secondary)
@@ -332,6 +410,21 @@ struct PortCard: View {
                     .padding(.leading, 48)
             }
 
+            if let cable = cableEmarker {
+                HStack {
+                    Spacer()
+                    Button {
+                        reportingCable = cable
+                    } label: {
+                        Label("Report this cable", systemImage: "exclamationmark.bubble")
+                            .font(.caption)
+                    }
+                    .buttonStyle(.borderless)
+                    .help("File a GitHub issue with this cable's e-marker fingerprint")
+                }
+                .padding(.leading, 48)
+            }
+
             if showAdvanced {
                 Divider()
                 AdvancedPortDetails(port: port)
@@ -339,6 +432,11 @@ struct PortCard: View {
         }
         .padding(14)
         .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 10))
+        .sheet(item: $reportingCable) { cable in
+            CableReportSheet(cableIdentity: cable) {
+                reportingCable = nil
+            }
+        }
     }
 }
 
