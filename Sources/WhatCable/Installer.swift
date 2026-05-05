@@ -38,7 +38,6 @@ final class Installer: ObservableObject {
 
                 state = .verifying
                 let extractedApp = try unzipAndLocate(zip: zipURL, in: workDir!)
-                try stripQuarantine(at: extractedApp)
                 try verifySignatureMatches(new: extractedApp, current: Bundle.main.bundleURL)
 
                 state = .installing
@@ -77,30 +76,46 @@ final class Installer: ObservableObject {
     }
 
     private func unzipAndLocate(zip: URL, in dir: URL) throws -> URL {
+        try validateZipEntries(zip)
         try run("/usr/bin/unzip", ["-q", zip.path, "-d", dir.path])
 
-        // Find the first .app at the top of `dir`.
         let contents = try FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)
-        guard let app = contents.first(where: { $0.pathExtension == "app" }) else {
-            throw InstallError("No .app found inside the downloaded zip")
+        let apps = contents.filter { $0.pathExtension == "app" }
+        guard apps.count == 1, apps[0].lastPathComponent == "WhatCable.app" else {
+            throw InstallError("Expected exactly one WhatCable.app in the downloaded zip")
         }
-        return app
+        return apps[0]
     }
 
-    private func stripQuarantine(at url: URL) throws {
-        // Best-effort — failure to strip isn't fatal, Gatekeeper will just
-        // prompt the user instead of launching silently.
-        _ = try? run("/usr/bin/xattr", ["-dr", "com.apple.quarantine", url.path])
+    // Check zip entries for path traversal or absolute paths before extracting.
+    private func validateZipEntries(_ zip: URL) throws {
+        let output = try captureOutput("/usr/bin/unzip", ["-Z1", zip.path])
+        for entry in output.split(separator: "\n") {
+            let path = String(entry)
+            if path.hasPrefix("/") || path.contains("../") || path.contains("/..") {
+                throw InstallError("Zip contains unsafe path: \(path)")
+            }
+        }
     }
 
     private func verifySignatureMatches(new: URL, current: URL) throws {
+        // Check team identifier matches.
         let newTeam = try teamIdentifier(of: new)
         let currentTeam = try teamIdentifier(of: current)
         if newTeam != currentTeam {
             throw InstallError("Signature mismatch: refusing to install (current \(currentTeam), new \(newTeam))")
         }
-        // Also verify the new bundle's signature is structurally valid.
+        // Check bundle ID is exactly what we expect.
+        let bundleID = Bundle(url: new)?.bundleIdentifier ?? ""
+        if bundleID != "com.bitmoor.whatcable" {
+            throw InstallError("Unexpected bundle identifier: \(bundleID)")
+        }
+        // Verify signature structure is valid.
         try run("/usr/bin/codesign", ["--verify", "--deep", "--strict", new.path])
+        // Verify Gatekeeper / notarization acceptance.
+        try run("/usr/sbin/spctl", ["--assess", "--type", "execute", new.path])
+        // Strip quarantine only after all checks pass.
+        _ = try? run("/usr/bin/xattr", ["-dr", "com.apple.quarantine", new.path])
     }
 
     private func teamIdentifier(of app: URL) throws -> String {
