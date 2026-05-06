@@ -62,6 +62,23 @@ cp "${BIN_PATH}/${APP_NAME}" "${MACOS_DIR}/${APP_NAME}"
 # expects bundled non-launch executables to live.
 cp "${BIN_PATH}/${CLI_PRODUCT}" "${HELPERS_DIR}/${CLI_BIN_NAME}"
 
+# WhatCableCore ships the bundled USB-IF vendor list as a `.process`
+# resource. SPM wraps `Sources/WhatCableCore/Resources/` in a bundle
+# named `WhatCable_WhatCableCore.bundle`. Put it in Contents/Resources
+# so Bundle.main.resourceURL (which Bundle.module's lookup chain
+# checks first) resolves it for both the GUI binary and the CLI when
+# launched from inside the .app. We do not ship the bundle into
+# Contents/Helpers because codesign rejects non-bundle directories
+# placed there.
+SPM_BUNDLE_NAME="WhatCable_WhatCableCore.bundle"
+SPM_RESOURCES_SRC="Sources/WhatCableCore/Resources"
+if [[ -d "${SPM_RESOURCES_SRC}" ]]; then
+    bundle_path="${RESOURCES_DIR}/${SPM_BUNDLE_NAME}"
+    rm -rf "${bundle_path}"
+    mkdir -p "${bundle_path}"
+    cp -R "${SPM_RESOURCES_SRC}/." "${bundle_path}/"
+fi
+
 echo "==> Verifying universal binaries"
 lipo -archs "${MACOS_DIR}/${APP_NAME}" | sed 's/^/    app: /'
 lipo -archs "${HELPERS_DIR}/${CLI_BIN_NAME}" | sed 's/^/    cli: /'
@@ -158,6 +175,18 @@ if [[ "${CLI_VERSION_OUTPUT}" != "${VERSION}" ]]; then
     exit 1
 fi
 echo "    CLI reports ${CLI_VERSION_OUTPUT}"
+
+# Exercise the JSON output path so we hit VendorDB / CableTrustReport
+# / ChargingDiagnostic, not just the Info.plist read. Catches regressions
+# where bundled resources (like the USB-IF vendor list) fail to load
+# in the deployed .app and crash on first use. Output goes to /dev/null;
+# we only care that the process exits 0.
+if ! "${HELPERS_DIR}/${CLI_BIN_NAME}" --json >/dev/null 2>&1; then
+    echo "    ERROR: CLI --json exited non-zero. A bundled resource may not be" >&2
+    echo "    loadable in the deployed .app context." >&2
+    exit 1
+fi
+echo "    CLI --json runs cleanly"
 
 echo "==> Creating zip"
 ( cd "${DIST_DIR}" && ditto -c -k --keepParent "${APP_NAME}.app" "${APP_NAME}.zip" )
