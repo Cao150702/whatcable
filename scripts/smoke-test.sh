@@ -23,8 +23,8 @@ fi
 
 APP_NAME="WhatCable"
 BUNDLE_ID="uk.whatcable.whatcable"
-VERSION="0.7.1"
-BUILD_NUMBER="32"
+VERSION="0.8.0"
+BUILD_NUMBER="33"
 MIN_OS="14.0"
 CLI_PRODUCT="whatcable-cli"
 CLI_BIN_NAME="whatcable"
