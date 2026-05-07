@@ -242,9 +242,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
 
     @objc func showAboutPanel() {
         NSApp.activate(ignoringOtherApps: true)
-        let creditText = String(localized: "Built by \(AppInfo.credit).", bundle: .module)
         let credits = NSAttributedString(
-            string: "\(AppInfo.tagline)\n\n\(creditText)",
+            string: "\(AppInfo.tagline)\n\n\(AppInfo.credit)",
             attributes: [
                 .foregroundColor: NSColor.labelColor,
                 .font: NSFont.systemFont(ofSize: 11)
