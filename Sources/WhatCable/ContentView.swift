@@ -513,7 +513,11 @@ struct PortCard: View {
 
             if showAdvanced {
                 Divider()
-                AdvancedPortDetails(port: port, thunderboltChain: thunderboltChain)
+                AdvancedPortDetails(
+                    port: port,
+                    cableEmarker: cableEmarker,
+                    thunderboltChain: thunderboltChain
+                )
             }
         }
         .padding(14)
@@ -583,6 +587,7 @@ struct PowerSourceList: View {
 
 struct AdvancedPortDetails: View {
     let port: USBCPort
+    let cableEmarker: PDIdentity?
     let thunderboltChain: [ThunderboltSwitch]
 
     var body: some View {
@@ -599,6 +604,9 @@ struct AdvancedPortDetails: View {
                 row(String(localized: "Supported", bundle: .module), port.transportsSupported.joined(separator: ", "))
                 row(String(localized: "Provisioned", bundle: .module), port.transportsProvisioned.joined(separator: ", "))
                 row(String(localized: "Active", bundle: .module), port.transportsActive.isEmpty ? "—" : port.transportsActive.joined(separator: ", "))
+            }
+            if let v2 = cableEmarker?.activeCableVDO2 {
+                ActiveCableVDO2Section(vdo2: v2)
             }
             if !thunderboltChain.isEmpty {
                 ThunderboltFabricSection(chain: thunderboltChain)
@@ -641,6 +649,54 @@ struct AdvancedPortDetails: View {
     private func bool(_ v: Bool?) -> String {
         guard let v else { return "—" }
         return v ? String(localized: "Yes", bundle: .module) : String(localized: "No", bundle: .module)
+    }
+}
+
+/// Renders every field in Active Cable VDO 2. Hidden behind the
+/// existing "show technical details" toggle. The bullet list above the
+/// fold already surfaces the user-facing essentials (medium, active
+/// element, optical isolation), so this section is the deep view for
+/// people who want to see USB protocol support, lane count, idle power,
+/// thermal limits, etc.
+struct ActiveCableVDO2Section: View {
+    let vdo2: PDVDO.ActiveCableVDO2
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text("Active cable (VDO 2)")
+                .scaledFont(.caption, weight: .bold)
+                .foregroundStyle(.secondary)
+            row("Physical connection", vdo2.physicalConnection.label)
+            row("Active element", vdo2.activeElement.label)
+            row("Optically isolated", bool(vdo2.opticallyIsolated))
+            row("USB lanes", vdo2.twoLanesSupported ? "Two" : "One")
+            row("USB Gen", vdo2.usbGen2OrHigher ? "Gen 2 or higher" : "Gen 1")
+            row("USB4 supported", bool(vdo2.usb4Supported))
+            row("USB 3.2 supported", bool(vdo2.usb32Supported))
+            row("USB 2.0 supported", bool(vdo2.usb2Supported))
+            row("USB 2.0 hub hops", String(vdo2.usb2HubHopsConsumed))
+            row("USB4 asymmetric", bool(vdo2.usb4AsymmetricMode))
+            row("U3 to U0 transition", vdo2.u3ToU0TransitionThroughU3S ? "Through U3S" : "Direct")
+            row("Idle power (U3/CLd)", vdo2.u3CLdPower.label)
+            row("Max operating temp", temp(vdo2.maxOperatingTempC))
+            row("Shutdown temp", temp(vdo2.shutdownTempC))
+        }
+    }
+
+    private func row(_ key: String, _ value: String) -> some View {
+        HStack {
+            Text(key).scaledFont(.caption).foregroundStyle(.secondary).frame(width: 160, alignment: .leading)
+            Text(value).scaledFont(.caption, design: .monospaced)
+            Spacer()
+        }
+    }
+
+    private func bool(_ v: Bool) -> String { v ? "Yes" : "No" }
+
+    /// 0 in this field means "not specified" per the spec text. Show
+    /// the dash placeholder rather than the misleading literal "0°C".
+    private func temp(_ v: Int) -> String {
+        v == 0 ? "—" : "\(v)°C"
     }
 }
 

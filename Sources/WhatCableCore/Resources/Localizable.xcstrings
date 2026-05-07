@@ -56,6 +56,12 @@
     "Cable has an e-marker chip (advertises its capabilities)" : {
 
     },
+    " · %lldW cable" : {
+
+    },
+    "Active cable (VDO 2):" : {
+
+    },
     "Cable is limiting charging speed" : {
 
     },

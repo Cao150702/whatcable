@@ -216,52 +216,66 @@ extension PortSummary {
             return w > 0 ? w : nil
         }()
 
+        // Cable limit suffix: only emitted when the cable's e-marker
+        // reports a maxWatts that is strictly less than what the charger
+        // advertises. The diagnostic banner already explains this in
+        // detail when a cable is plugged in; the headline suffix is the
+        // at-a-glance equivalent so the user can spot a cable mismatch
+        // without reading further.
+        let cableLimitSuffix: String = {
+            guard let chargerW,
+                  let cableW = cableEmarker?.cableVDO?.maxWatts,
+                  cableW > 0,
+                  cableW < chargerW else { return "" }
+            return String(localized: " · \(cableW)W cable", bundle: .module)
+        }()
+
         if hasTB {
             self.status = .thunderboltCable
             if let w = chargerW {
-                self.headline = String(localized: "Thunderbolt / USB4 · \(w)W charger", bundle: .module)
+                self.headline = String(localized: "Thunderbolt / USB4 · \(w)W charger", bundle: .module) + cableLimitSuffix
             } else {
-                self.headline = String(localized: "Thunderbolt / USB4", bundle: .module)
+                self.headline = String(localized: "Thunderbolt / USB4", bundle: .module) + cableLimitSuffix
             }
             self.subtitle = subtitleForCapabilities(usb3: true, dp: hasDP, emarker: hasEmarker)
         } else if hasUSB3 && hasDP {
             self.status = .displayCable
             if let w = chargerW {
-                self.headline = String(localized: "USB-C with video · \(w)W charger", bundle: .module)
+                self.headline = String(localized: "USB-C with video · \(w)W charger", bundle: .module) + cableLimitSuffix
             } else {
-                self.headline = String(localized: "USB-C with video", bundle: .module)
+                self.headline = String(localized: "USB-C with video", bundle: .module) + cableLimitSuffix
             }
             self.subtitle = String(localized: "Carrying both data and DisplayPort video.", bundle: .module)
         } else if hasDP {
             self.status = .displayCable
             if let w = chargerW {
-                self.headline = String(localized: "Display connected · \(w)W charger", bundle: .module)
+                self.headline = String(localized: "Display connected · \(w)W charger", bundle: .module) + cableLimitSuffix
             } else {
-                self.headline = String(localized: "Display connected", bundle: .module)
+                self.headline = String(localized: "Display connected", bundle: .module) + cableLimitSuffix
             }
             self.subtitle = String(localized: "DisplayPort video over USB-C alt mode.", bundle: .module)
         } else if hasUSB3 {
             self.status = .dataDevice
             if let w = chargerW {
-                self.headline = String(localized: "USB device · \(w)W charger", bundle: .module)
+                self.headline = String(localized: "USB device · \(w)W charger", bundle: .module) + cableLimitSuffix
             } else {
-                self.headline = String(localized: "USB device", bundle: .module)
+                self.headline = String(localized: "USB device", bundle: .module) + cableLimitSuffix
             }
             self.subtitle = String(localized: "SuperSpeed data link is active.", bundle: .module)
         } else if hasUSB2 && !hasUSB3 {
             self.status = .dataDevice
             if let w = chargerW {
-                self.headline = String(localized: "Slow USB device or charge-only cable · \(w)W charger", bundle: .module)
+                self.headline = String(localized: "Slow USB device or charge-only cable · \(w)W charger", bundle: .module) + cableLimitSuffix
             } else {
-                self.headline = String(localized: "Slow USB device or charge-only cable", bundle: .module)
+                self.headline = String(localized: "Slow USB device or charge-only cable", bundle: .module) + cableLimitSuffix
             }
             self.subtitle = String(localized: "Only USB 2.0 is active. If you expected high speed, the cable may not support it.", bundle: .module)
         } else if chargingSource != nil {
             self.status = .charging
             if let w = chargerW {
-                self.headline = String(localized: "Charging · \(w)W charger", bundle: .module)
+                self.headline = String(localized: "Charging · \(w)W charger", bundle: .module) + cableLimitSuffix
             } else {
-                self.headline = String(localized: "Charging", bundle: .module)
+                self.headline = String(localized: "Charging", bundle: .module) + cableLimitSuffix
             }
             self.subtitle = String(localized: "Power is flowing. No data connection.", bundle: .module)
         } else if active.isEmpty && supported.contains("USB2") {
