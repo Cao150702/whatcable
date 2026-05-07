@@ -243,10 +243,10 @@ struct ContentView: View {
 
     private var footer: some View {
         HStack {
-            Button(String(localized: "Quit", bundle: .module)) { NSApplication.shared.terminate(nil) }
-                .buttonStyle(.borderless)
+            Toggle(String(localized: "Show technical details", bundle: .module), isOn: $settings.showTechnicalDetails)
+                .toggleStyle(.switch)
+                .controlSize(.mini)
                 .scaledFont(.caption)
-                .foregroundStyle(.secondary)
             Spacer()
             Text(String(localized: "\(deviceWatcher.devices.count) USB devices", bundle: .module))
                 .scaledFont(.caption)
@@ -255,6 +255,11 @@ struct ContentView: View {
             Text(verbatim: "v\(AppInfo.version) · \(AppInfo.credit)")
                 .scaledFont(.caption)
                 .foregroundStyle(.tertiary)
+            Text(verbatim: "·").scaledFont(.caption).foregroundStyle(.secondary)
+            Button(String(localized: "Quit", bundle: .module)) { NSApplication.shared.terminate(nil) }
+                .buttonStyle(.borderless)
+                .scaledFont(.caption)
+                .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
