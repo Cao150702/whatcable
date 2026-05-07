@@ -27,9 +27,9 @@ struct SettingsView: View {
         HStack {
             Image(systemName: "gearshape")
                 .scaledFont(.title2)
-            Text("Settings").scaledFont(.headline, weight: .bold)
+            Text(String(localized: "Settings", bundle: .module)).scaledFont(.headline, weight: .bold)
             Spacer()
-            Button("Done", action: dismiss)
+            Button(String(localized: "Done", bundle: .module), action: dismiss)
                 .keyboardShortcut(.defaultAction)
         }
         .padding(12)
@@ -41,23 +41,23 @@ struct SettingsForm: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            section("Behavior") {
-                Toggle("Launch at login", isOn: $settings.launchAtLogin)
-                Toggle("Show in menu bar", isOn: $settings.useMenuBarMode)
+            section(String(localized: "Behavior", bundle: .module)) {
+                Toggle(String(localized: "Launch at login", bundle: .module), isOn: $settings.launchAtLogin)
+                Toggle(String(localized: "Show in menu bar", bundle: .module), isOn: $settings.useMenuBarMode)
                 Text(settings.useMenuBarMode
-                     ? "Lives in the menu bar with no Dock icon."
-                     : "Runs as a regular Dock app with a window.")
+                     ? String(localized: "Lives in the menu bar with no Dock icon.", bundle: .module)
+                     : String(localized: "Runs as a regular Dock app with a window.", bundle: .module))
                     .scaledFont(.caption)
                     .foregroundStyle(.secondary)
             }
-            section("Display") {
-                Toggle("Show technical details", isOn: $settings.showTechnicalDetails)
-                Toggle("Hide empty ports", isOn: $settings.hideEmptyPorts)
+            section(String(localized: "Display", bundle: .module)) {
+                Toggle(String(localized: "Show technical details", bundle: .module), isOn: $settings.showTechnicalDetails)
+                Toggle(String(localized: "Hide empty ports", bundle: .module), isOn: $settings.hideEmptyPorts)
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
-                        Text("Font size")
+                        Text(String(localized: "Font size", bundle: .module))
                         Spacer()
-                        Text("\(Int((settings.fontSize * 100).rounded()))%")
+                        Text(verbatim: "\(Int((settings.fontSize * 100).rounded()))%")
                             .foregroundStyle(.secondary)
                             .monospacedDigit()
                     }
@@ -71,8 +71,8 @@ struct SettingsForm: View {
                 }
                 .padding(.top, 4)
             }
-            section("Notifications") {
-                Toggle("Notify on cable changes", isOn: $settings.notifyOnChanges)
+            section(String(localized: "Notifications", bundle: .module)) {
+                Toggle(String(localized: "Notify on cable changes", bundle: .module), isOn: $settings.notifyOnChanges)
             }
         }
     }

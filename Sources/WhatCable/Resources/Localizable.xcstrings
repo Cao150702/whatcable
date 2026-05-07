@@ -1,0 +1,285 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    "%@ profiles" : {
+
+    },
+    "%lld USB devices" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld USB device"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld USB devices"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld USB-C ports detected, but nothing is currently plugged in. Turn off \"Hide empty ports\" in Settings to see them." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld USB-C port detected, but nothing is currently plugged in. Turn off \"Hide empty ports\" in Settings to see it."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld USB-C ports detected, but nothing is currently plugged in. Turn off \"Hide empty ports\" in Settings to see them."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld devices removed" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld device removed"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld devices removed"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "About %@" : {
+
+    },
+    "Active" : {
+
+    },
+    "Active cable electronics" : {
+
+    },
+    "All raw IOKit properties (%lld)" : {
+
+    },
+    "Behavior" : {
+
+    },
+    "Built by %@." : {
+
+    },
+    "Cable trust signals" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Charger connected" : {
+
+    },
+    "Charger disconnected" : {
+
+    },
+    "Check for Updates…" : {
+
+    },
+    "Connected devices" : {
+
+    },
+    "Connected: %@" : {
+
+    },
+    "Connection" : {
+
+    },
+    "Display" : {
+
+    },
+    "Done" : {
+
+    },
+    "Downloading…" : {
+
+    },
+    "File a GitHub issue with this cable's e-marker fingerprint" : {
+
+    },
+    "Font size" : {
+
+    },
+    "Helps the maintainer reproduce charger / cable behavior tied to specific hardware." : {
+
+    },
+    "Hide empty ports" : {
+
+    },
+    "Host (%@)" : {
+
+    },
+    "Include Mac model and macOS version" : {
+
+    },
+    "Install failed: %@" : {
+
+    },
+    "Install update" : {
+
+    },
+    "Installing, WhatCable will relaunch" : {
+
+    },
+    "Keep window open" : {
+
+    },
+    "Launch at login" : {
+
+    },
+    "Lives in the menu bar with no Dock icon." : {
+
+    },
+    "No" : {
+
+    },
+    "No USB-C ports detected" : {
+
+    },
+    "Nothing connected" : {
+
+    },
+    "Notifications" : {
+
+    },
+    "Notify on cable changes" : {
+
+    },
+    "Open in GitHub" : {
+
+    },
+    "Opens a pre-filled GitHub issue in your browser. Nothing is sent until you submit there." : {
+
+    },
+    "Optical" : {
+
+    },
+    "PD source" : {
+
+    },
+    "%@ negotiated" : {
+
+    },
+    "Plug events" : {
+
+    },
+    "Preview of what will be included:" : {
+
+    },
+    "Provisioned" : {
+
+    },
+    "Quit" : {
+
+    },
+    "Quit %@" : {
+
+    },
+    "Refresh" : {
+
+    },
+    "Report this cable" : {
+
+    },
+    "Runs as a regular Dock app with a window." : {
+
+    },
+    "Settings" : {
+
+    },
+    "Settings…" : {
+
+    },
+    "Show in menu bar" : {
+
+    },
+    "Show technical details" : {
+
+    },
+    "SuperSpeed" : {
+
+    },
+    "Supported" : {
+
+    },
+    "This Mac doesn't seem to expose its port-controller services. Hit refresh, or check System Information > USB." : {
+
+    },
+    "Thunderbolt fabric" : {
+
+    },
+    "Transports" : {
+
+    },
+    "USB active" : {
+
+    },
+    "USB device" : {
+
+    },
+    "USB device disconnected" : {
+
+    },
+    "Unknown" : {
+
+    },
+    "Verifying signature…" : {
+
+    },
+    "View release" : {
+
+    },
+    "What gets shared?" : {
+
+    },
+    "WhatCable %@ is available" : {
+
+    },
+    "WhatCable on GitHub" : {
+
+    },
+    "Yes" : {
+
+    },
+    "You're on %@" : {
+
+    },
+    "active" : {
+
+    },
+    "no active link" : {
+
+    }
+  },
+  "version" : "1.0"
+}

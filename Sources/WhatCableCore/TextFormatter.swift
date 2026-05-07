@@ -10,7 +10,7 @@ public enum TextFormatter {
         thunderboltSwitches: [ThunderboltSwitch] = []
     ) -> String {
         if ports.isEmpty {
-            return "No USB-C / MagSafe ports were found on this Mac.\n"
+            return String(localized: "No USB-C / MagSafe ports were found on this Mac.", bundle: .module) + "\n"
         }
 
         var out = ""
@@ -61,7 +61,7 @@ public enum TextFormatter {
 
         if let diag = ChargingDiagnostic(port: port, sources: sources, identities: identities, adapter: adapter) {
             let diagColor = diag.isWarning ? ANSI.yellow : ANSI.green
-            out += "\n" + ANSI.wrap(ANSI.bold, "Charging: ") + ANSI.wrap(diagColor, diag.summary) + "\n"
+            out += "\n" + ANSI.wrap(ANSI.bold, String(localized: "Charging: ", bundle: .module)) + ANSI.wrap(diagColor, diag.summary) + "\n"
             out += "  " + ANSI.wrap(ANSI.dim, diag.detail) + "\n"
         }
 
@@ -72,7 +72,7 @@ public enum TextFormatter {
         if let cable = identities.first(where: { $0.endpoint == .sopPrime || $0.endpoint == .sopDoublePrime }) {
             let trust = CableTrustReport(identity: cable)
             if !trust.isEmpty {
-                out += "\n" + ANSI.wrap(ANSI.bold + ANSI.yellow, "Cable trust signals:") + "\n"
+                out += "\n" + ANSI.wrap(ANSI.bold + ANSI.yellow, String(localized: "Cable trust signals:", bundle: .module)) + "\n"
                 for flag in trust.flags {
                     out += "  " + ANSI.wrap(ANSI.yellow, "⚠") + " " + ANSI.wrap(ANSI.bold, flag.title) + "\n"
                     out += "    " + ANSI.wrap(ANSI.dim, flag.detail) + "\n"
@@ -81,7 +81,7 @@ public enum TextFormatter {
         }
 
         if showRaw {
-            out += "\n" + ANSI.wrap(ANSI.bold, "Raw IOKit properties:") + "\n"
+            out += "\n" + ANSI.wrap(ANSI.bold, String(localized: "Raw IOKit properties:", bundle: .module)) + "\n"
             for key in port.rawProperties.keys.sorted() {
                 let value = port.rawProperties[key] ?? ""
                 out += "  " + ANSI.wrap(ANSI.gray, key) + " = \(value)\n"

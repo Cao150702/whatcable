@@ -16,6 +16,7 @@ let appSwiftSettings: [SwiftSetting] = isMASBuild ? [.define("WHATCABLE_MAS")] :
 
 let package = Package(
     name: "WhatCable",
+    defaultLocalization: "en",
     platforms: [.macOS(.v14)],
     products: [
         // Explicit executable product so the binary name (whatcable-cli)
@@ -40,6 +41,7 @@ let package = Package(
             name: "WhatCable",
             dependencies: ["WhatCableCore", "WhatCableDarwinBackend"],
             path: "Sources/WhatCable",
+            resources: [.process("Resources")],
             swiftSettings: appSwiftSettings
         ),
         .executableTarget(

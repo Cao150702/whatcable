@@ -79,6 +79,16 @@ if [[ -d "${SPM_RESOURCES_SRC}" ]]; then
     cp -R "${SPM_RESOURCES_SRC}/." "${bundle_path}/"
 fi
 
+# The WhatCable app target also has its own string catalog for UI strings.
+APP_BUNDLE_NAME="WhatCable_WhatCable.bundle"
+APP_RESOURCES_SRC="Sources/WhatCable/Resources"
+if [[ -d "${APP_RESOURCES_SRC}" ]]; then
+    bundle_path="${RESOURCES_DIR}/${APP_BUNDLE_NAME}"
+    rm -rf "${bundle_path}"
+    mkdir -p "${bundle_path}"
+    cp -R "${APP_RESOURCES_SRC}/." "${bundle_path}/"
+fi
+
 echo "==> Verifying universal binaries"
 lipo -archs "${MACOS_DIR}/${APP_NAME}" | sed 's/^/    app: /'
 lipo -archs "${HELPERS_DIR}/${CLI_BIN_NAME}" | sed 's/^/    cli: /'
