@@ -13,24 +13,24 @@ struct WhatCableApp: App {
         Settings { EmptyView() }
             .commands {
                 CommandGroup(replacing: .appInfo) {
-                    Button("About \(AppInfo.name)") {
+                    Button(String(localized: "About \(AppInfo.name)", bundle: .module)) {
                         delegate.showAboutPanel()
                     }
                 }
                 #if !WHATCABLE_MAS
                 CommandGroup(after: .appInfo) {
-                    Button("Check for Updates…") {
+                    Button(String(localized: "Check for Updates…", bundle: .module)) {
                         UpdateChecker.shared.check(silent: false)
                     }
                 }
                 #endif
                 CommandGroup(replacing: .help) {
-                    Button("WhatCable on GitHub") {
+                    Button(String(localized: "WhatCable on GitHub", bundle: .module)) {
                         NSWorkspace.shared.open(AppInfo.helpURL)
                     }
                 }
                 CommandGroup(replacing: .appSettings) {
-                    Button("Settings…") {
+                    Button(String(localized: "Settings…", bundle: .module)) {
                         delegate.showSettingsPanel(nil)
                     }
                     .keyboardShortcut(",", modifiers: .command)
@@ -186,20 +186,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
     private func showMenu(from button: NSStatusBarButton) {
         guard let statusItem else { return }
         let menu = NSMenu()
-        menu.addItem(.init(title: "Refresh", action: #selector(menuRefresh), keyEquivalent: "r"))
-        let pinItem = NSMenuItem(title: "Keep window open", action: #selector(menuTogglePin), keyEquivalent: "p")
+        menu.addItem(.init(title: String(localized: "Refresh", bundle: .module), action: #selector(menuRefresh), keyEquivalent: "r"))
+        let pinItem = NSMenuItem(title: String(localized: "Keep window open", bundle: .module), action: #selector(menuTogglePin), keyEquivalent: "p")
         pinItem.state = isPinned ? .on : .off
         menu.addItem(pinItem)
         menu.addItem(.separator())
-        menu.addItem(.init(title: "Settings…", action: #selector(menuSettings), keyEquivalent: ","))
+        menu.addItem(.init(title: String(localized: "Settings…", bundle: .module), action: #selector(menuSettings), keyEquivalent: ","))
         #if !WHATCABLE_MAS
-        menu.addItem(.init(title: "Check for Updates…", action: #selector(menuCheckUpdates), keyEquivalent: ""))
+        menu.addItem(.init(title: String(localized: "Check for Updates…", bundle: .module), action: #selector(menuCheckUpdates), keyEquivalent: ""))
         #endif
         menu.addItem(.separator())
-        menu.addItem(.init(title: "About \(AppInfo.name)", action: #selector(showAboutPanel), keyEquivalent: ""))
-        menu.addItem(.init(title: "WhatCable on GitHub", action: #selector(menuHelp), keyEquivalent: ""))
+        menu.addItem(.init(title: String(localized: "About \(AppInfo.name)", bundle: .module), action: #selector(showAboutPanel), keyEquivalent: ""))
+        menu.addItem(.init(title: String(localized: "WhatCable on GitHub", bundle: .module), action: #selector(menuHelp), keyEquivalent: ""))
         menu.addItem(.separator())
-        menu.addItem(.init(title: "Quit \(AppInfo.name)", action: #selector(menuQuit), keyEquivalent: "q"))
+        menu.addItem(.init(title: String(localized: "Quit \(AppInfo.name)", bundle: .module), action: #selector(menuQuit), keyEquivalent: "q"))
         for item in menu.items where item.action != nil { item.target = self }
 
         statusItem.menu = menu
@@ -242,8 +242,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
 
     @objc func showAboutPanel() {
         NSApp.activate(ignoringOtherApps: true)
+        let creditText = String(localized: "Built by \(AppInfo.credit).", bundle: .module)
         let credits = NSAttributedString(
-            string: "\(AppInfo.tagline)\n\nBuilt by \(AppInfo.credit).",
+            string: "\(AppInfo.tagline)\n\n\(creditText)",
             attributes: [
                 .foregroundColor: NSColor.labelColor,
                 .font: NSFont.systemFont(ofSize: 11)

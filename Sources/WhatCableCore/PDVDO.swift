@@ -19,14 +19,14 @@ public enum PDVDO {
 
         public var label: String {
             switch self {
-            case .undefined: return "Unspecified"
-            case .pdusbHub: return "USB Hub"
-            case .pdusbPeripheral: return "USB Peripheral"
-            case .passiveCable: return "Passive cable"
-            case .activeCable: return "Active cable"
-            case .ama: return "Alternate Mode Adapter"
-            case .vpd: return "VCONN-powered device"
-            case .other: return "Other"
+            case .undefined: return String(localized: "Unspecified", bundle: .module)
+            case .pdusbHub: return String(localized: "USB Hub", bundle: .module)
+            case .pdusbPeripheral: return String(localized: "USB Peripheral", bundle: .module)
+            case .passiveCable: return String(localized: "Passive cable", bundle: .module)
+            case .activeCable: return String(localized: "Active cable", bundle: .module)
+            case .ama: return String(localized: "Alternate Mode Adapter", bundle: .module)
+            case .vpd: return String(localized: "VCONN-powered device", bundle: .module)
+            case .other: return String(localized: "Other", bundle: .module)
             }
         }
     }
@@ -64,11 +64,11 @@ public enum PDVDO {
 
         public var label: String {
             switch self {
-            case .usb20: return "USB 2.0 (480 Mbps)"
-            case .usb32Gen1: return "USB 3.2 Gen 1 (5 Gbps)"
-            case .usb32Gen2: return "USB 3.2 Gen 2 (10 Gbps)"
-            case .usb4Gen3: return "USB4 Gen 3 (20 / 40 Gbps)"
-            case .usb4Gen4: return "USB4 Gen 4 (80 Gbps)"
+            case .usb20: return String(localized: "USB 2.0 (480 Mbps)", bundle: .module)
+            case .usb32Gen1: return String(localized: "USB 3.2 Gen 1 (5 Gbps)", bundle: .module)
+            case .usb32Gen2: return String(localized: "USB 3.2 Gen 2 (10 Gbps)", bundle: .module)
+            case .usb4Gen3: return String(localized: "USB4 Gen 3 (20 / 40 Gbps)", bundle: .module)
+            case .usb4Gen4: return String(localized: "USB4 Gen 4 (80 Gbps)", bundle: .module)
             }
         }
 
@@ -98,9 +98,9 @@ public enum PDVDO {
 
         public var label: String {
             switch self {
-            case .usbDefault: return "USB default"
-            case .threeAmp: return "3 A"
-            case .fiveAmp: return "5 A"
+            case .usbDefault: return String(localized: "USB default", bundle: .module)
+            case .threeAmp: return String(localized: "3 A", bundle: .module)
+            case .fiveAmp: return String(localized: "5 A", bundle: .module)
             }
         }
     }
@@ -306,8 +306,8 @@ public enum PDVDO {
 
         public var label: String {
             switch self {
-            case .copper: return "Copper"
-            case .optical: return "Optical"
+            case .copper: return String(localized: "Copper", bundle: .module)
+            case .optical: return String(localized: "Optical", bundle: .module)
             }
         }
     }
@@ -322,8 +322,8 @@ public enum PDVDO {
 
         public var label: String {
             switch self {
-            case .redriver: return "Re-driver"
-            case .retimer: return "Re-timer"
+            case .redriver: return String(localized: "Re-driver", bundle: .module)
+            case .retimer: return String(localized: "Re-timer", bundle: .module)
             }
         }
     }
@@ -343,14 +343,14 @@ public enum PDVDO {
 
         public var label: String {
             switch self {
-            case .greaterThan10mW: return "> 10 mW"
-            case .fiveTo10mW: return "5-10 mW"
-            case .oneTo5mW: return "1-5 mW"
-            case .halfTo1mW: return "0.5-1 mW"
-            case .fifthToHalfmW: return "0.2-0.5 mW"
-            case .fiftyTo200uW: return "50-200 µW"
-            case .lessThan50uW: return "< 50 µW"
-            case .reserved: return "Reserved"
+            case .greaterThan10mW: return String(localized: "> 10 mW", bundle: .module)
+            case .fiveTo10mW: return String(localized: "5-10 mW", bundle: .module)
+            case .oneTo5mW: return String(localized: "1-5 mW", bundle: .module)
+            case .halfTo1mW: return String(localized: "0.5-1 mW", bundle: .module)
+            case .fifthToHalfmW: return String(localized: "0.2-0.5 mW", bundle: .module)
+            case .fiftyTo200uW: return String(localized: "50-200 µW", bundle: .module)
+            case .lessThan50uW: return String(localized: "< 50 µW", bundle: .module)
+            case .reserved: return String(localized: "Reserved", bundle: .module)
             }
         }
     }
