@@ -59,6 +59,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         ProcessInfo.processInfo.setValue(AppInfo.name, forKey: "processName")
 
         NotificationManager.shared.start()
+        WidgetDataWriter.shared.start()
         #if !WHATCABLE_MAS
         UpdateChecker.shared.start()
         #endif

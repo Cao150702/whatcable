@@ -24,7 +24,11 @@ let package = Package(
         // module name needs to be a valid Swift identifier so it can be
         // imported by tests.
         .executable(name: "WhatCable", targets: ["WhatCable"]),
-        .executable(name: "whatcable-cli", targets: ["WhatCableCLI"])
+        .executable(name: "whatcable-cli", targets: ["WhatCableCLI"]),
+        // Library product so the Xcode project's widget extension target
+        // can depend on WhatCableCore. Only consumed by the .xcodeproj;
+        // the CLI and GUI targets use the internal target dependency.
+        .library(name: "WhatCableCore", targets: ["WhatCableCore"])
     ],
     targets: [
         .target(

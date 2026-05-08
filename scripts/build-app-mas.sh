@@ -87,7 +87,10 @@ CONTENTS_DIR="${APP_DIR}/Contents"
 MACOS_DIR="${CONTENTS_DIR}/MacOS"
 HELPERS_DIR="${CONTENTS_DIR}/Helpers"
 RESOURCES_DIR="${CONTENTS_DIR}/Resources"
+PLUGINS_DIR="${CONTENTS_DIR}/PlugIns"
 ENTITLEMENTS="scripts/${APP_NAME}.MAS.entitlements"
+WIDGET_ENTITLEMENTS="scripts/WhatCableWidget.entitlements"
+WIDGET_APPEX="WhatCableWidget.appex"
 PKG_PATH="${DIST_DIR}/${APP_NAME}.pkg"
 
 echo "==> Running tests"
@@ -95,7 +98,7 @@ swift test
 
 echo "==> Cleaning previous MAS build"
 rm -rf "${DIST_DIR}"
-mkdir -p "${MACOS_DIR}" "${HELPERS_DIR}" "${RESOURCES_DIR}"
+mkdir -p "${MACOS_DIR}" "${HELPERS_DIR}" "${RESOURCES_DIR}" "${PLUGINS_DIR}"
 
 echo "==> Building MAS release binaries (WHATCABLE_MAS=1, arm64 + x86_64)"
 WHATCABLE_MAS=1 swift build -c release --product "${APP_NAME}" \
@@ -107,6 +110,30 @@ BIN_PATH=$(WHATCABLE_MAS=1 swift build -c release --product "${APP_NAME}" \
     --arch arm64 --arch x86_64 --show-bin-path)
 cp "${BIN_PATH}/${APP_NAME}" "${MACOS_DIR}/${APP_NAME}"
 cp "${BIN_PATH}/${CLI_PRODUCT}" "${HELPERS_DIR}/${CLI_BIN_NAME}"
+
+echo "==> Building widget extension (xcodebuild)"
+if command -v xcodegen &>/dev/null; then
+    xcodegen generate --quiet
+elif [[ ! -d "WhatCableWidget.xcodeproj" ]]; then
+    echo "    ERROR: xcodegen not installed and WhatCableWidget.xcodeproj not found." >&2
+    echo "    Install with: brew install xcodegen" >&2
+    exit 1
+fi
+
+xcodebuild build -project WhatCableWidget.xcodeproj -scheme WhatCableWidget \
+    -configuration Release \
+    -destination 'platform=macOS' \
+    CODE_SIGNING_ALLOWED=NO \
+    ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO \
+    MARKETING_VERSION="${VERSION}" \
+    CURRENT_PROJECT_VERSION="${BUILD_NUMBER}" \
+    -quiet
+
+WIDGET_BUILD_DIR=$(xcodebuild -project WhatCableWidget.xcodeproj -scheme WhatCableWidget \
+    -configuration Release -showBuildSettings 2>/dev/null \
+    | grep ' BUILD_DIR = ' | awk '{print $NF}')
+cp -R "${WIDGET_BUILD_DIR}/Release/${WIDGET_APPEX}" "${PLUGINS_DIR}/${WIDGET_APPEX}"
+echo "    Widget embedded at ${PLUGINS_DIR}/${WIDGET_APPEX}"
 
 # Bundled WhatCableCore resources (USB-IF vendor list, etc.). Same layout
 # as smoke-test.sh.
@@ -192,6 +219,14 @@ codesign --force --options runtime --timestamp \
     --entitlements "${ENTITLEMENTS}" \
     --sign "${MAS_APP_IDENTITY}" \
     "${HELPERS_DIR}/${CLI_BIN_NAME}"
+
+echo "==> Signing widget extension with App Store identity + widget entitlements"
+# Widget uses its own entitlements (app-sandbox + app-group). Must be
+# signed before the outer app.
+codesign --force --options runtime --timestamp \
+    --entitlements "${WIDGET_ENTITLEMENTS}" \
+    --sign "${MAS_APP_IDENTITY}" \
+    "${PLUGINS_DIR}/${WIDGET_APPEX}"
 
 echo "==> Signing app bundle (outer) with App Store identity + sandbox entitlements"
 echo "    Identity: ${MAS_APP_IDENTITY}"

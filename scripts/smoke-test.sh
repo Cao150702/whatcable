@@ -38,14 +38,17 @@ CONTENTS_DIR="${APP_DIR}/Contents"
 MACOS_DIR="${CONTENTS_DIR}/MacOS"
 HELPERS_DIR="${CONTENTS_DIR}/Helpers"
 RESOURCES_DIR="${CONTENTS_DIR}/Resources"
+PLUGINS_DIR="${CONTENTS_DIR}/PlugIns"
 ENTITLEMENTS="scripts/${APP_NAME}.entitlements"
+WIDGET_ENTITLEMENTS="scripts/WhatCableWidget.entitlements"
+WIDGET_APPEX="WhatCableWidget.appex"
 
 echo "==> Running tests"
 swift test
 
 echo "==> Cleaning previous build"
 rm -rf "${DIST_DIR}"
-mkdir -p "${MACOS_DIR}" "${HELPERS_DIR}" "${RESOURCES_DIR}"
+mkdir -p "${MACOS_DIR}" "${HELPERS_DIR}" "${RESOURCES_DIR}" "${PLUGINS_DIR}"
 
 echo "==> Building universal release binaries (arm64 + x86_64)"
 swift build -c release --product "${APP_NAME}" \
@@ -61,6 +64,36 @@ cp "${BIN_PATH}/${APP_NAME}" "${MACOS_DIR}/${APP_NAME}"
 # main binary in v0.5.0. Helpers/ avoids the collision and is also where Apple
 # expects bundled non-launch executables to live.
 cp "${BIN_PATH}/${CLI_PRODUCT}" "${HELPERS_DIR}/${CLI_BIN_NAME}"
+
+echo "==> Building widget extension (xcodebuild)"
+# Generate the Xcode project from project.yml if xcodegen is available.
+# The .xcodeproj is gitignored, so it may not exist yet.
+if command -v xcodegen &>/dev/null; then
+    xcodegen generate --quiet
+elif [[ ! -d "WhatCableWidget.xcodeproj" ]]; then
+    echo "    ERROR: xcodegen not installed and WhatCableWidget.xcodeproj not found." >&2
+    echo "    Install with: brew install xcodegen" >&2
+    exit 1
+fi
+
+# Build the widget as a universal binary with signing disabled.
+# Version constants are passed via xcodebuild overrides so project.yml
+# doesn't need to stay in sync with smoke-test.sh.
+xcodebuild build -project WhatCableWidget.xcodeproj -scheme WhatCableWidget \
+    -configuration Release \
+    -destination 'platform=macOS' \
+    CODE_SIGNING_ALLOWED=NO \
+    ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO \
+    MARKETING_VERSION="${VERSION}" \
+    CURRENT_PROJECT_VERSION="${BUILD_NUMBER}" \
+    -quiet
+
+# Copy the built .appex into the app bundle's PlugIns directory.
+WIDGET_BUILD_DIR=$(xcodebuild -project WhatCableWidget.xcodeproj -scheme WhatCableWidget \
+    -configuration Release -showBuildSettings 2>/dev/null \
+    | grep ' BUILD_DIR = ' | awk '{print $NF}')
+cp -R "${WIDGET_BUILD_DIR}/Release/${WIDGET_APPEX}" "${PLUGINS_DIR}/${WIDGET_APPEX}"
+echo "    Widget embedded at ${PLUGINS_DIR}/${WIDGET_APPEX}"
 
 # WhatCableCore ships the bundled USB-IF vendor list as a `.process`
 # resource. SPM wraps `Sources/WhatCableCore/Resources/` in a bundle
@@ -92,6 +125,7 @@ fi
 echo "==> Verifying universal binaries"
 lipo -archs "${MACOS_DIR}/${APP_NAME}" | sed 's/^/    app: /'
 lipo -archs "${HELPERS_DIR}/${CLI_BIN_NAME}" | sed 's/^/    cli: /'
+lipo -archs "${PLUGINS_DIR}/${WIDGET_APPEX}/Contents/MacOS/WhatCableWidget" | sed 's/^/    widget: /'
 
 echo "==> Copying app icon"
 if [[ ! -f "scripts/AppIcon.icns" ]]; then
@@ -148,6 +182,15 @@ if [[ -n "${DEVELOPER_ID}" ]]; then
         --sign "${DEVELOPER_ID}" \
         "${HELPERS_DIR}/${CLI_BIN_NAME}"
 
+    echo "==> Signing widget extension with Developer ID + hardened runtime"
+    # The appex must be signed with its own entitlements (app-sandbox +
+    # app-group), not the host app's. Sign order matters: nested bundles
+    # before the outer app, or codesign invalidates the outer signature.
+    codesign --force --options runtime --timestamp \
+        --entitlements "${WIDGET_ENTITLEMENTS}" \
+        --sign "${DEVELOPER_ID}" \
+        "${PLUGINS_DIR}/${WIDGET_APPEX}"
+
     echo "==> Signing app bundle (outer) with Developer ID + hardened runtime"
     echo "    Identity: ${DEVELOPER_ID}"
     codesign --force --options runtime --timestamp \
@@ -156,7 +199,10 @@ if [[ -n "${DEVELOPER_ID}" ]]; then
         "${APP_DIR}"
 else
     echo "==> Ad-hoc signing (no DEVELOPER_ID set)"
-    codesign --force --deep --sign - "${APP_DIR}"
+    codesign --force --entitlements "${WIDGET_ENTITLEMENTS}" \
+        --sign - "${PLUGINS_DIR}/${WIDGET_APPEX}"
+    codesign --force --entitlements "${ENTITLEMENTS}" \
+        --sign - "${APP_DIR}"
 fi
 
 echo "==> Verifying signature"
