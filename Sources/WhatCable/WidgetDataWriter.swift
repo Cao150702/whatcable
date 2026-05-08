@@ -32,13 +32,12 @@ final class WidgetDataWriter {
     private var lastSnapshot: WidgetSnapshot?
     private var isStarted = false
 
-    private let defaults = UserDefaults(suiteName: WidgetSnapshot.appGroupID)
-
     private init() {}
 
     func start() {
         guard !isStarted else { return }
         isStarted = true
+        Self.log.debug("WidgetDataWriter starting (sharedFileURL: \(WidgetSnapshot.sharedFileURL?.path ?? "nil"))")
         portWatcher.start()
         deviceWatcher.start()
         powerWatcher.start()
@@ -153,17 +152,17 @@ final class WidgetDataWriter {
 
     @discardableResult
     private func writeToDefaults(_ snapshot: WidgetSnapshot) -> Bool {
-        guard let defaults else {
-            Self.log.error("Failed to open App Group defaults (suite: \(WidgetSnapshot.appGroupID))")
+        guard let url = WidgetSnapshot.sharedFileURL else {
+            Self.log.error("Failed to resolve App Group container URL")
             return false
         }
 
         do {
             let data = try JSONEncoder().encode(snapshot)
-            defaults.set(data, forKey: WidgetSnapshot.defaultsKey)
+            try data.write(to: url, options: .atomic)
             return true
         } catch {
-            Self.log.error("Failed to encode widget snapshot: \(error.localizedDescription, privacy: .public)")
+            Self.log.error("Failed to write widget snapshot: \(error.localizedDescription, privacy: .public)")
             return false
         }
     }

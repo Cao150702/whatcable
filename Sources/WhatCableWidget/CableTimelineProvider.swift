@@ -1,3 +1,4 @@
+import Foundation
 import WidgetKit
 import WhatCableCore
 
@@ -42,8 +43,8 @@ struct CableTimelineProvider: TimelineProvider {
     // MARK: - Read from App Group
 
     private func currentEntry() -> CableWidgetEntry {
-        guard let defaults = UserDefaults(suiteName: WidgetSnapshot.appGroupID),
-              let data = defaults.data(forKey: WidgetSnapshot.defaultsKey),
+        guard let url = WidgetSnapshot.sharedFileURL,
+              let data = try? Data(contentsOf: url),
               let snapshot = try? JSONDecoder().decode(WidgetSnapshot.self, from: data),
               Date().timeIntervalSince(snapshot.timestamp) <= staleAfter else {
             return CableWidgetEntry(date: Date(), snapshot: nil)

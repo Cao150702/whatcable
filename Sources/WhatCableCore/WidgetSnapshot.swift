@@ -68,8 +68,18 @@ extension WidgetSnapshot {
     /// App Group suite name shared between the main app and widget extension.
     public static let appGroupID = "group.uk.whatcable.whatcable"
 
-    /// UserDefaults key for the encoded snapshot blob.
+    /// UserDefaults key for the encoded snapshot blob (legacy, kept for reference).
     public static let defaultsKey = "widgetSnapshot"
+
+    /// File-based shared data URL. UserDefaults via App Group suite names
+    /// requires a provisioning profile for sandboxed extensions to read.
+    /// Writing a JSON file directly to the group container works without one
+    /// because both processes have file-system access to the shared directory.
+    public static var sharedFileURL: URL? {
+        FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: appGroupID
+        )?.appendingPathComponent("widgetSnapshot.json")
+    }
 }
 
 // MARK: - Convenience builders
