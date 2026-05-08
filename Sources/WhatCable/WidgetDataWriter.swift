@@ -5,8 +5,15 @@ import os.log
 import WhatCableCore
 import WhatCableDarwinBackend
 
-/// Writes a pre-computed WidgetSnapshot to the App Group shared container
-/// whenever cable state changes, then tells WidgetKit to refresh.
+/// Writes a pre-computed WidgetSnapshot to the macOS team-prefixed App Group
+/// shared container whenever cable state changes, then tells WidgetKit to
+/// refresh.
+///
+/// WidgetKit extensions are sandboxed even though the WhatCable host app is
+/// not. For Developer ID builds, the `group.` App Group form requires an
+/// embedded provisioning profile. Using `M4RUJ7W6MP.uk.whatcable.whatcable`
+/// keeps the distribution profile-free while giving both processes the same
+/// sandbox-authorized container.
 ///
 /// Owns its own set of watchers so it runs independently of the UI.
 /// Mirrors the pattern used by NotificationManager: watchers start at
@@ -29,8 +36,14 @@ final class WidgetDataWriter {
 
     private var cancellables = Set<AnyCancellable>()
     private var writeTask: Task<Void, Never>?
+    private var heartbeatTask: Task<Void, Never>?
     private var lastSnapshot: WidgetSnapshot?
     private var isStarted = false
+
+    /// How often to re-write the snapshot even when ports haven't changed.
+    /// Keeps the timestamp fresh so the widget's staleness check doesn't
+    /// discard valid data just because nothing changed for a while.
+    private let heartbeatInterval: Duration = .seconds(120)
 
     private init() {}
 
@@ -75,6 +88,17 @@ final class WidgetDataWriter {
             .dropFirst()
             .sink { [weak self] _ in self?.scheduleWrite() }
             .store(in: &cancellables)
+
+        // Periodic heartbeat: re-write the snapshot with a fresh timestamp
+        // even when ports haven't changed. This prevents the widget's
+        // staleness check from discarding valid data during long idle periods.
+        heartbeatTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: self?.heartbeatInterval ?? .seconds(120))
+                guard !Task.isCancelled, let self else { return }
+                self.forceWrite()
+            }
+        }
     }
 
     /// Debounced write. Cancels any pending write and waits 200ms for
@@ -108,8 +132,18 @@ final class WidgetDataWriter {
             // are installed, so it's safe to call unconditionally.
             WidgetCenter.shared.reloadAllTimelines()
 
-            Self.log.debug("Widget snapshot written: \(snapshot.ports.count) ports")
+            Self.log.debug("Widget timelines reloaded after snapshot write")
         }
+    }
+
+    /// Unconditional write with a fresh timestamp. Called by the heartbeat
+    /// timer to keep the snapshot from going stale during idle periods.
+    private func forceWrite() {
+        let snapshot = buildSnapshot()
+        guard writeToDefaults(snapshot) else { return }
+        lastSnapshot = snapshot
+        WidgetCenter.shared.reloadAllTimelines()
+        Self.log.debug("Widget heartbeat: refreshed timestamp and reloaded timelines (\(snapshot.ports.count) ports)")
     }
 
     private func buildSnapshot() -> WidgetSnapshot {
@@ -160,9 +194,10 @@ final class WidgetDataWriter {
         do {
             let data = try JSONEncoder().encode(snapshot)
             try data.write(to: url, options: .atomic)
+            Self.log.debug("Widget snapshot written to \(url.path, privacy: .public): \(snapshot.ports.count, privacy: .public) ports, \(data.count, privacy: .public) bytes")
             return true
         } catch {
-            Self.log.error("Failed to write widget snapshot: \(error.localizedDescription, privacy: .public)")
+            Self.log.error("Failed to write widget snapshot at \(url.path, privacy: .public): \(error.localizedDescription, privacy: .public)")
             return false
         }
     }

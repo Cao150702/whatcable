@@ -1,10 +1,16 @@
 import Foundation
 import WidgetKit
+import os.log
 import WhatCableCore
 
-/// Reads the latest WidgetSnapshot from the App Group shared container
-/// and builds a single-entry timeline. The main app pushes reloads via
-/// WidgetCenter.reloadAllTimelines() whenever cable state changes.
+/// Reads the latest WidgetSnapshot from the macOS team-prefixed App Group
+/// shared container and builds a single-entry timeline. The main app pushes
+/// reloads via WidgetCenter.reloadAllTimelines() whenever cable state changes.
+///
+/// The widget stays data-only instead of probing IOKit itself. That keeps the
+/// sandboxed extension small and avoids duplicating the live watcher graph;
+/// the only IPC is this JSON file in the shared container authorized by the
+/// `M4RUJ7W6MP.uk.whatcable.whatcable` entitlement.
 ///
 /// A fallback 60-second refresh policy catches the case where the main
 /// app quits or crashes and stops pushing reloads. If the snapshot is
@@ -12,6 +18,10 @@ import WhatCableCore
 struct CableTimelineProvider: TimelineProvider {
     /// Snapshots older than this are treated as stale (main app not running).
     private let staleAfter: TimeInterval = 5 * 60
+    private let log = Logger(
+        subsystem: "uk.whatcable.whatcable",
+        category: "widget-timeline"
+    )
     typealias Entry = CableWidgetEntry
 
     /// Shown briefly while the widget loads for the first time.
@@ -43,12 +53,33 @@ struct CableTimelineProvider: TimelineProvider {
     // MARK: - Read from App Group
 
     private func currentEntry() -> CableWidgetEntry {
-        guard let url = WidgetSnapshot.sharedFileURL,
-              let data = try? Data(contentsOf: url),
-              let snapshot = try? JSONDecoder().decode(WidgetSnapshot.self, from: data),
-              Date().timeIntervalSince(snapshot.timestamp) <= staleAfter else {
+        guard let url = WidgetSnapshot.sharedFileURL else {
+            log.error("Failed to resolve App Group container URL for \(WidgetSnapshot.appGroupID, privacy: .public)")
             return CableWidgetEntry(date: Date(), snapshot: nil)
         }
+
+        let data: Data
+        do {
+            data = try Data(contentsOf: url)
+        } catch {
+            log.error("Failed to read widget snapshot: \(error.localizedDescription, privacy: .public)")
+            return CableWidgetEntry(date: Date(), snapshot: nil)
+        }
+
+        let snapshot: WidgetSnapshot
+        do {
+            snapshot = try JSONDecoder().decode(WidgetSnapshot.self, from: data)
+        } catch {
+            log.error("Failed to decode widget snapshot (\(data.count) bytes): \(error.localizedDescription, privacy: .public)")
+            return CableWidgetEntry(date: Date(), snapshot: nil)
+        }
+
+        let age = Date().timeIntervalSince(snapshot.timestamp)
+        guard age <= staleAfter else {
+            log.error("Widget snapshot is stale (\(Int(age))s old), showing empty state")
+            return CableWidgetEntry(date: Date(), snapshot: nil)
+        }
+
         return CableWidgetEntry(date: snapshot.timestamp, snapshot: snapshot)
     }
 }

@@ -66,15 +66,22 @@ public struct WidgetSnapshot: Codable, Equatable {
 
 extension WidgetSnapshot {
     /// App Group suite name shared between the main app and widget extension.
-    public static let appGroupID = "group.uk.whatcable.whatcable"
+    ///
+    /// This intentionally uses macOS' unprovisioned App Group format:
+    /// `<Developer Team ID>.<group name>`. For Developer ID notarized builds,
+    /// Apple requires `group.` identifiers to be present in an embedded
+    /// provisioning profile, but team-prefixed identifiers are authorized by
+    /// the signing TeamIdentifier alone. That keeps the GitHub/Homebrew build
+    /// profile-free while still giving the sandboxed WidgetKit extension a
+    /// real shared container with the non-sandboxed host app.
+    public static let appGroupID = "M4RUJ7W6MP.uk.whatcable.whatcable"
 
     /// UserDefaults key for the encoded snapshot blob (legacy, kept for reference).
     public static let defaultsKey = "widgetSnapshot"
 
-    /// File-based shared data URL. UserDefaults via App Group suite names
-    /// requires a provisioning profile for sandboxed extensions to read.
-    /// Writing a JSON file directly to the group container works without one
-    /// because both processes have file-system access to the shared directory.
+    /// File-based shared data URL. The widget reads this same path via the
+    /// matching team-prefixed App Group entitlement; no provisioning profile
+    /// is required for Developer ID distribution on macOS.
     public static var sharedFileURL: URL? {
         FileManager.default.containerURL(
             forSecurityApplicationGroupIdentifier: appGroupID

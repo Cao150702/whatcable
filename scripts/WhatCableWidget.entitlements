@@ -4,8 +4,9 @@
   Entitlements for the WhatCable desktop widget extension.
 
   app-sandbox: required for all app extensions.
-  application-groups: shared container for reading cable state
-  written by the main app.
+  application-groups: shared container for reading cable state written by
+  the main app. This uses macOS' team-prefixed App Group format so Developer
+  ID builds do not need an embedded provisioning profile.
 -->
 <plist version="1.0">
 <dict>
@@ -13,7 +14,7 @@
     <true/>
     <key>com.apple.security.application-groups</key>
     <array>
-        <string>group.uk.whatcable.whatcable</string>
+        <string>M4RUJ7W6MP.uk.whatcable.whatcable</string>
     </array>
 </dict>
 </plist>
