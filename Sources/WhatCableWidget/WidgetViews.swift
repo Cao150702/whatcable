@@ -2,7 +2,7 @@ import SwiftUI
 import WidgetKit
 import WhatCableCore
 
-// MARK: - Main entry view (dispatches by widget family)
+// MARK: - Main entry view for static widget (small + medium + large)
 
 struct CableWidgetEntryView: View {
     @Environment(\.widgetFamily) var family
@@ -38,6 +38,9 @@ struct SmallWidgetView: View {
                     .font(.title2)
                     .foregroundStyle(port.status.color)
                 Spacer()
+                if port.deviceCount > 0 {
+                    DeviceCountBadge(count: port.deviceCount)
+                }
             }
             Text(port.headline)
                 .font(.headline)
@@ -66,17 +69,18 @@ struct MediumWidgetView: View {
                     Divider().padding(.vertical, 4)
                 }
                 VStack(alignment: .leading, spacing: 4) {
-                    Image(systemName: port.iconName)
-                        .font(.title3)
-                        .foregroundStyle(port.status.color)
+                    HStack(spacing: 4) {
+                        Image(systemName: port.iconName)
+                            .font(.title3)
+                            .foregroundStyle(port.status.color)
+                        if port.deviceCount > 0 {
+                            DeviceCountBadge(count: port.deviceCount, compact: true)
+                        }
+                    }
                     Text(port.headline)
                         .font(.caption)
                         .fontWeight(.semibold)
                         .lineLimit(2)
-                    Text(port.portName)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 4)
@@ -138,7 +142,30 @@ struct LargePortRow: View {
                 }
             }
             Spacer(minLength: 0)
+            if port.deviceCount > 0 {
+                DeviceCountBadge(count: port.deviceCount)
+            }
         }
+    }
+}
+
+// MARK: - Device count badge
+
+/// Small label showing how many USB devices are connected to a port.
+/// Uses a compact layout on the medium widget (icon only with count)
+/// and a slightly larger one on small/large widgets.
+struct DeviceCountBadge: View {
+    let count: Int
+    var compact: Bool = false
+
+    var body: some View {
+        HStack(spacing: 2) {
+            Image(systemName: count == 1 ? "laptopcomputer" : "square.stack.3d.up")
+                .font(compact ? .caption2 : .caption)
+            Text("\(count)")
+                .font(compact ? .caption2 : .caption)
+        }
+        .foregroundStyle(.secondary)
     }
 }
 
@@ -199,7 +226,8 @@ func mostInteresting(_ ports: [WidgetSnapshot.PortEntry]) -> WidgetSnapshot.Port
         headline: "Nothing connected",
         subtitle: "Plug a cable in to see what it can do.",
         topBullet: nil,
-        iconName: "powerplug"
+        iconName: "powerplug",
+        deviceCount: 0
     )
 }
 

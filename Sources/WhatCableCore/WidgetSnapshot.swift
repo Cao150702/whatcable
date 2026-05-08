@@ -30,6 +30,9 @@ public struct WidgetSnapshot: Codable, Equatable {
         public let topBullet: String?
         /// SF Symbol name for the port's current state.
         public let iconName: String
+        /// Number of USB devices matched to this port. Zero when nothing
+        /// is plugged in or the connection is power-only.
+        public let deviceCount: Int
 
         public init(
             id: UInt64,
@@ -38,7 +41,8 @@ public struct WidgetSnapshot: Codable, Equatable {
             headline: String,
             subtitle: String,
             topBullet: String?,
-            iconName: String
+            iconName: String,
+            deviceCount: Int = 0
         ) {
             self.id = id
             self.portName = portName
@@ -47,6 +51,23 @@ public struct WidgetSnapshot: Codable, Equatable {
             self.subtitle = subtitle
             self.topBullet = topBullet
             self.iconName = iconName
+            self.deviceCount = deviceCount
+        }
+
+        /// Custom decoder so that JSON written before `deviceCount` was
+        /// added (pre-0.9.0) still decodes without error. Swift's
+        /// synthesized Decodable ignores init parameter defaults, so
+        /// without this a missing key would throw.
+        public init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            id = try c.decode(UInt64.self, forKey: .id)
+            portName = try c.decode(String.self, forKey: .portName)
+            status = try c.decode(Status.self, forKey: .status)
+            headline = try c.decode(String.self, forKey: .headline)
+            subtitle = try c.decode(String.self, forKey: .subtitle)
+            topBullet = try c.decodeIfPresent(String.self, forKey: .topBullet)
+            iconName = try c.decode(String.self, forKey: .iconName)
+            deviceCount = try c.decodeIfPresent(Int.self, forKey: .deviceCount) ?? 0
         }
     }
 

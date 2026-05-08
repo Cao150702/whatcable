@@ -100,7 +100,8 @@ struct CableWidgetEntry: TimelineEntry {
                 headline: "Thunderbolt / USB4",
                 subtitle: "Supports high-speed data, video, smart cable.",
                 topBullet: "Linked at up to 40 Gb/s x 2",
-                iconName: "bolt.horizontal.fill"
+                iconName: "bolt.horizontal.fill",
+                deviceCount: 2
             ),
             .init(
                 id: 2,
@@ -109,7 +110,8 @@ struct CableWidgetEntry: TimelineEntry {
                 headline: "Charging - 96W charger",
                 subtitle: "Power is flowing. No data connection.",
                 topBullet: "Charger advertises up to 96W",
-                iconName: "bolt.fill"
+                iconName: "bolt.fill",
+                deviceCount: 0
             ),
             .init(
                 id: 3,
@@ -118,7 +120,8 @@ struct CableWidgetEntry: TimelineEntry {
                 headline: "Nothing connected",
                 subtitle: "Plug a cable in to see what it can do.",
                 topBullet: nil,
-                iconName: "powerplug"
+                iconName: "powerplug",
+                deviceCount: 0
             ),
         ])
     )

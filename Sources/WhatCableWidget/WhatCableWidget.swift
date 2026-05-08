@@ -3,8 +3,8 @@ import WidgetKit
 import WhatCableCore
 
 /// Entry point for the WhatCable desktop widget. Provides three size
-/// families: small (one port), medium (all ports compact), and large
-/// (all ports with detail).
+/// families: small (single most interesting port), medium (all ports
+/// compact), and large (all ports with detail).
 @main
 struct WhatCableWidgetBundle: WidgetBundle {
     var body: some Widget {
