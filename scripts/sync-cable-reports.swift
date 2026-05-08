@@ -197,9 +197,11 @@ func loadExistingContexts() -> [Int: String] {
         guard inTable, line.hasPrefix("|"), !line.contains("---") else { continue }
         let parts = line.dropFirst().dropLast().components(separatedBy: "|")
             .map { $0.trimmingCharacters(in: .whitespaces) }
-        // Header row has "VID" as first cell; data rows have a code span like `0xABCD`.
-        guard parts.count == 9, parts[0].hasPrefix("`0x") || parts[0] == "`0x0000`" else { continue }
-        let context = parts[7]
+        // Data rows have a code span like `0xABCD` in column 1 (the VID).
+        // Header row has plain text "VID" there. We use that as the
+        // discriminator so we skip the header without a name match.
+        guard parts.count == 9, parts[1].hasPrefix("`0x") else { continue }
+        let context = parts[0]
         let source = parts[8]
         // Source cell is "[#NN](url)"; pull out NN.
         let re = try! NSRegularExpression(pattern: "#(\\d+)")
@@ -231,7 +233,7 @@ func renderRow(_ report: Report, context: String, vendors: [Int: String]) -> Str
     let power = report.power.isEmpty ? "(not advertised)" : report.power
     let type = report.type.isEmpty ? "passive" : report.type
     let source = "[#\(report.issueNumber)](https://github.com/darrylmorley/whatcable/issues/\(report.issueNumber))"
-    return "| \(vidCol) | \(pidCol) | \(vendor) | \(report.xidCol) | \(speed) | \(power) | \(type) | \(context) | \(source) |"
+    return "| \(context) | \(vidCol) | \(pidCol) | \(vendor) | \(report.xidCol) | \(speed) | \(power) | \(type) | \(source) |"
 }
 
 // MARK: - Update markdown
