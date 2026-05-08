@@ -24,13 +24,13 @@ hand-maintained markdown table; format may change once the consumer exists.
 | VID | PID | Vendor (USB-IF) | XID | Speed | Power | Type | Brand / model context | Source |
 |---|---|---|---|---|---|---|---|---|
 | `0x0138` | `0x0310` | Unregistered | none | USB4 Gen 4 (80 Gbps) | 5 A / 50 V (250 W) | passive | UGOURD TB5/USB4 cable, AliExpress (no USB-IF cert) | [#71](https://github.com/darrylmorley/whatcable/issues/71) |
-| `0x0522` | `0x0A06` | ACON, Advanced-Connectek, Inc. | `0x939` | USB4 Gen 3 (40 Gbps) | 5 A / 20 V (100 W) | passive | Bundled in UGREEN Revodok Max 213 (U710) dock; housing marked TB4 | [#84](https://github.com/darrylmorley/whatcable/issues/84) |
-| `0x201C` | `0x0000` | Hongkong Freeport Electronics Co. | none | USB 2.0 (480 Mbps) | 5 A / 20 V (100 W) | passive | Anker 333 USB-C 3.3 ft nylon | [#60](https://github.com/darrylmorley/whatcable/issues/60) |
+| `0x0522` | `0x0A06` | ACON, Advanced-Connectek, Inc. | `0x939` | USB4 Gen 3 (20 / 40 Gbps) | 5 A / 20 V (100 W) | passive | Bundled in UGREEN Revodok Max 213 (U710) dock; housing marked TB4 | [#84](https://github.com/darrylmorley/whatcable/issues/84) |
+| `0x201C` | `0x0000` | Hongkong Freeport Electronics Co., Limited | none | USB 2.0 (480 Mbps) | 5 A / 20 V (100 W) | passive | Anker 333 USB-C 3.3 ft nylon | [#60](https://github.com/darrylmorley/whatcable/issues/60) |
 | `0x2095` | `0x004F` | CE LINK LIMITED | none | USB 3.2 Gen 2 (10 Gbps) | 5 A / 20 V (100 W) | passive | Monoprice Essentials USB-C 10 Gbps 0.5 m | [#48](https://github.com/darrylmorley/whatcable/issues/48) |
-| `0x20C2` | `0x0005` | Sumitomo Electric Ind., Ltd. | none | USB 3.2 Gen 2 (10 Gbps) | 5 A / 20 V (100 W) | passive | delock TB3-branded cable | [#44](https://github.com/darrylmorley/whatcable/issues/44) |
-| `0x2B1D` | `0x1512` | Lintes Technology Co., Ltd. | none | USB4 Gen 3 (40 Gbps) | 5 A / 20 V (100 W) | passive | CalDigit TS4 dock bundled cable (likely) | [#62](https://github.com/darrylmorley/whatcable/issues/62) |
-| `0x2E99` | `0x0000` | Hynetek Semiconductor Co., Ltd | none | USB4 Gen 3 (40 Gbps) | 5 A / 50 V (250 W) | passive | Dbilida TB4-branded 240 W cable, Amazon (no USB-IF cert) | [#49](https://github.com/darrylmorley/whatcable/issues/49) |
-| `0x315C` | `0x0000` | Chengdu Convenientpower Semiconductor Co., LTD | none | USB4 Gen 3 (40 Gbps) | 5 A / 20 V (100 W) | passive | acasis cable bundled with TBU405M1 enclosure | [#45](https://github.com/darrylmorley/whatcable/issues/45) |
+| `0x20C2` | `0x0005` | Sumitomo Electric Ind., Ltd., Optical Comm. R&D Lab | none | USB 3.2 Gen 2 (10 Gbps) | 5 A / 20 V (100 W) | passive | delock TB3-branded cable | [#44](https://github.com/darrylmorley/whatcable/issues/44) |
+| `0x2B1D` | `0x1512` | Lintes Technology Co., Ltd. | none | USB4 Gen 3 (20 / 40 Gbps) | 5 A / 20 V (100 W) | passive | CalDigit TS4 dock bundled cable (likely) | [#62](https://github.com/darrylmorley/whatcable/issues/62) |
+| `0x2E99` | `0x0000` | Hynetek Semiconductor Co., Ltd | none | USB4 Gen 3 (20 / 40 Gbps) | 5 A / 50 V (250 W) | passive | Dbilida TB4-branded 240 W cable, Amazon (no USB-IF cert) | [#49](https://github.com/darrylmorley/whatcable/issues/49) |
+| `0x315C` | `0x0000` | Chengdu Convenientpower Semiconductor Co., LTD | none | USB4 Gen 3 (20 / 40 Gbps) | 5 A / 20 V (100 W) | passive | acasis cable bundled with TBU405M1 enclosure | [#45](https://github.com/darrylmorley/whatcable/issues/45) |
 | `0x0000` | `0x0000` | (zeroed) | none | (none advertised) | (not advertised) | passive | CUKTECH No.6 140 W (e-marker present but VID/PID/speed all zeroed) | [#61](https://github.com/darrylmorley/whatcable/issues/61) |
 
 Sorted by VID. The zeroed-fingerprint entry is parked at the bottom because it
@@ -57,28 +57,38 @@ The other six reports describe cables whose e-marker matches their marketing.
 
 ## Adding new entries
 
-When triaging a new closed cable-report issue:
-
-1. Pull VID, PID, XID, speed, current rating, and type from the markdown
-   table in the issue body.
-2. Look up the canonical USB-IF vendor name (do not use the "as reported"
-   name, since older WhatCable versions show "Unregistered / unknown" for
-   VIDs that were registered all along).
-3. Distil the reporter's notes to one short phrase covering brand and
-   purchase context. Strip Amazon affiliate links, full product titles, and
-   anything that reads as personal context.
-4. Add the row in VID order. Link the issue under the Source column.
-5. If the report shows a trust-signal pattern (marketing/e-marker mismatch,
-   unregistered + no cert, zeroed fields, impossible PDOs), note it in the
-   Patterns section above.
-
-After editing this file, re-render the public page:
+When a new cable-report issue lands and you've triaged + closed it,
+the workflow is:
 
 ```bash
-swift scripts/render-known-cables.swift
+swift scripts/sync-cable-reports.swift     # pulls rows from gh
+swift scripts/render-known-cables.swift    # rebuilds docs/cables.html
 ```
 
-That writes `docs/cables.html`. Commit both files together.
+The sync script reads every closed `cable-report` issue via `gh`, parses
+the e-marker fingerprint table, looks up canonical USB-IF vendor names
+from the bundled TSV, and rewrites the table block above. Existing rows'
+"Brand / model context" cells are preserved by issue number; brand new
+rows land with `(needs review)` as a placeholder.
+
+After running the sync:
+
+1. Look at any rows still showing `(needs review)`. Open the source issue,
+   read the reporter's "What's the story" notes, and replace the
+   placeholder with a one-line phrase covering brand and purchase context.
+   Strip Amazon affiliate links, full product titles, and anything that
+   reads as personal context.
+2. If the report shows a trust-signal pattern (marketing / e-marker
+   mismatch, unregistered VID + no cert, zeroed fields, impossible PDOs),
+   add a bullet to the Patterns section above.
+3. Re-run the renderer if you edited the markdown again.
+4. Commit `data/known-cables.md` and `docs/cables.html` together.
+
+If you need to fix a row by hand (say a vendor name TSV entry was wrong
+upstream), edit `data/known-cables.md` directly. The sync script will
+preserve your edits as long as they live in the "Brand / model context"
+column. Other columns get rewritten on next sync, so structural changes
+need to land in the script or the underlying issue body.
 
 This file is not bundled into the app. It is a human reference. When the
 trust-signals or inventory features need this data at runtime, we'll
