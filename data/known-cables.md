@@ -72,6 +72,14 @@ When triaging a new closed cable-report issue:
    unregistered + no cert, zeroed fields, impossible PDOs), note it in the
    Patterns section above.
 
+After editing this file, re-render the public page:
+
+```bash
+swift scripts/render-known-cables.swift
+```
+
+That writes `docs/cables.html`. Commit both files together.
+
 This file is not bundled into the app. It is a human reference. When the
 trust-signals or inventory features need this data at runtime, we'll
 formalise it then.
