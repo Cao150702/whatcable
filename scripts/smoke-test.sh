@@ -65,6 +65,9 @@ cp "${BIN_PATH}/${APP_NAME}" "${MACOS_DIR}/${APP_NAME}"
 # expects bundled non-launch executables to live.
 cp "${BIN_PATH}/${CLI_PRODUCT}" "${HELPERS_DIR}/${CLI_BIN_NAME}"
 
+echo "==> Ad-hoc signing CLI binary before app signing"
+codesign --force --sign - "${HELPERS_DIR}/${CLI_BIN_NAME}"
+
 echo "==> Building widget extension (xcodebuild)"
 # Generate the Xcode project from project.yml if xcodegen is available.
 # The .xcodeproj is gitignored, so it may not exist yet.
@@ -141,7 +144,7 @@ cat > "${CONTENTS_DIR}/Info.plist" <<PLIST
 <plist version="1.0">
 <dict>
     <key>CFBundleDevelopmentRegion</key>
-    <string>en</string>
+    <string>zh-Hans</string>
     <key>CFBundleExecutable</key>
     <string>${APP_NAME}</string>
     <key>CFBundleIconFile</key>
