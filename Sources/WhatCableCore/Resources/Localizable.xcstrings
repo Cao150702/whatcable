@@ -223,8 +223,26 @@
         }
       }
     },
-    "Cable speed: %@": {},
-    "Cable trust signals:": {},
+    "Cable speed: %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "线缆速度：%@"
+          }
+        }
+      }
+    },
+    "Cable trust signals:": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "线缆信任信号："
+          }
+        }
+      }
+    },
     "Carrying DisplayPort video": {
       "localizations": {
         "zh-Hans": {

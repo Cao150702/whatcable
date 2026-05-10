@@ -71,6 +71,24 @@
               }
             }
           }
+        },
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 个 USB-C 端口已检测到，但当前未插入任何设备。请在设置中关闭「隐藏空端口」以查看它。"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 个 USB-C 端口已检测到，但当前未插入任何设备。请在设置中关闭「隐藏空端口」以查看它们。"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -89,6 +107,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld devices removed"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 个设备已移除"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 个设备已移除"
                 }
               }
             }
@@ -266,7 +302,16 @@
         }
       }
     },
-    "File a GitHub issue with this cable's e-marker fingerprint": {},
+    "File a GitHub issue with this cable's e-marker fingerprint": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此线缆的 e-marker 指纹在 GitHub 上提交问题"
+          }
+        }
+      }
+    },
     "Font size": {
       "localizations": {
         "zh-Hans": {
@@ -277,7 +322,16 @@
         }
       }
     },
-    "Helps the maintainer reproduce charger / cable behavior tied to specific hardware.": {},
+    "Helps the maintainer reproduce charger / cable behavior tied to specific hardware.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "帮助维护者复现与特定硬件相关的充电器/线缆行为。"
+          }
+        }
+      }
+    },
     "Hide empty ports": {
       "localizations": {
         "zh-Hans": {
@@ -298,7 +352,16 @@
         }
       }
     },
-    "Include Mac model and macOS version": {},
+    "Include Mac model and macOS version": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "包含 Mac 型号和 macOS 版本"
+          }
+        }
+      }
+    },
     "Install failed: %@": {
       "localizations": {
         "zh-Hans": {
@@ -349,7 +412,16 @@
         }
       }
     },
-    "Lives in the menu bar with no Dock icon.": {},
+    "Lives in the menu bar with no Dock icon.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "驻留在菜单栏中，无 Dock 图标。"
+          }
+        }
+      }
+    },
     "No": {
       "localizations": {
         "zh-Hans": {
@@ -410,7 +482,16 @@
         }
       }
     },
-    "Opens a pre-filled GitHub issue in your browser. Nothing is sent until you submit there.": {},
+    "Opens a pre-filled GitHub issue in your browser. Nothing is sent until you submit there.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在浏览器中打开预填好的 GitHub 问题。在您提交之前，不会发送任何内容。"
+          }
+        }
+      }
+    },
     "Optical": {
       "localizations": {
         "zh-Hans": {
@@ -511,7 +592,16 @@
         }
       }
     },
-    "Runs as a regular Dock app with a window.": {},
+    "Runs as a regular Dock app with a window.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "作为常规 Dock 应用运行，带有窗口。"
+          }
+        }
+      }
+    },
     "Settings": {
       "localizations": {
         "zh-Hans": {
@@ -572,7 +662,16 @@
         }
       }
     },
-    "This Mac doesn't seem to expose its port-controller services. Hit refresh, or check System Information > USB.": {},
+    "This Mac doesn't seem to expose its port-controller services. Hit refresh, or check System Information > USB.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此 Mac 似乎未暴露其端口控制器服务。点击刷新，或检查「系统信息 > USB」。"
+          }
+        }
+      }
+    },
     "Thunderbolt fabric": {
       "localizations": {
         "zh-Hans": {
