@@ -1,27 +1,50 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "" : {
-
+  "sourceLanguage": "en",
+  "strings": {
+    "": {},
+    "%@ profiles": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 个配置文件"
+          }
+        }
+      }
     },
-    "%@ profiles" : {
-
-    },
-    "%lld USB devices" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld USB device"
+    "%lld USB devices": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld USB device"
                 }
               },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld USB devices"
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld USB devices"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 个 USB 设备"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 个 USB 设备"
                 }
               }
             }
@@ -29,21 +52,21 @@
         }
       }
     },
-    "%lld USB-C ports detected, but nothing is currently plugged in. Turn off \"Hide empty ports\" in Settings to see them." : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld USB-C port detected, but nothing is currently plugged in. Turn off \"Hide empty ports\" in Settings to see it."
+    "%lld USB-C ports detected, but nothing is currently plugged in. Turn off \"Hide empty ports\" in Settings to see them.": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld USB-C port detected, but nothing is currently plugged in. Turn off \"Hide empty ports\" in Settings to see it."
                 }
               },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld USB-C ports detected, but nothing is currently plugged in. Turn off \"Hide empty ports\" in Settings to see them."
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld USB-C ports detected, but nothing is currently plugged in. Turn off \"Hide empty ports\" in Settings to see them."
                 }
               }
             }
@@ -51,21 +74,21 @@
         }
       }
     },
-    "%lld devices removed" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld device removed"
+    "%lld devices removed": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld device removed"
                 }
               },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld devices removed"
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld devices removed"
                 }
               }
             }
@@ -73,213 +96,633 @@
         }
       }
     },
-    "About %@" : {
-
-    },
-    "Active" : {
-
-    },
-    "Active cable electronics" : {
-
-    },
-    "All raw IOKit properties (%lld)" : {
-
-    },
-    "Behavior" : {
-
-    },
-    "Built by %@." : {
-
-    },
-    "Cable trust signals" : {
-
-    },
-    "Cancel" : {
-
-    },
-    "Charger connected" : {
-
-    },
-    "Charger disconnected" : {
-
-    },
-    "Check for Updates…" : {
-
-    },
-    "Connected devices" : {
-
-    },
-    "Connected: %@" : {
-
-    },
-    "Connection" : {
-
-    },
-    "Display" : {
-
-    },
-    "Done" : {
-
-    },
-    "Downloading…" : {
-
-    },
-    "File a GitHub issue with this cable's e-marker fingerprint" : {
-
-    },
-    "Font size" : {
-
-    },
-    "Helps the maintainer reproduce charger / cable behavior tied to specific hardware." : {
-
-    },
-    "Hide empty ports" : {
-
-    },
-    "Host (%@)" : {
-
-    },
-    "Include Mac model and macOS version" : {
-
-    },
-    "Install failed: %@" : {
-
-    },
-    "Install update" : {
-
-    },
-    "Installing, WhatCable will relaunch" : {
-
-    },
-    "Keep window open" : {
-
-    },
-    "Launch at login" : {
-
-    },
-    "Lives in the menu bar with no Dock icon." : {
-
-    },
-    "No" : {
-
-    },
-    "No USB-C ports detected" : {
-
-    },
-    "Nothing connected" : {
-
-    },
-    "Notifications" : {
-
-    },
-    "Notify on cable changes" : {
-
-    },
-    "Open in GitHub" : {
-
-    },
-    "Opens a pre-filled GitHub issue in your browser. Nothing is sent until you submit there." : {
-
-    },
-    "Optical" : {
-
-    },
-    "PD source" : {
-
-    },
-    "%@ negotiated" : {
-
-    },
-    "Plug events" : {
-
-    },
-    "Preview of what will be included:" : {
-
-    },
-    "Provisioned" : {
-
-    },
-    "Quit" : {
-
-    },
-    "Quit %@" : {
-
-    },
-    "Refresh" : {
-
-    },
-    "Report this cable" : {
-
-    },
-    "Runs as a regular Dock app with a window." : {
-
-    },
-    "Settings" : {
-
-    },
-    "Settings…" : {
-
-    },
-    "Show in menu bar" : {
-
-    },
-    "Show technical details" : {
-
-    },
-    "SuperSpeed" : {
-
-    },
-    "Supported" : {
-
-    },
-    "This Mac doesn't seem to expose its port-controller services. Hit refresh, or check System Information > USB." : {
-
-    },
-    "Thunderbolt fabric" : {
-
-    },
-    "Transports" : {
-
-    },
-    "USB active" : {
-
-    },
-    "USB device" : {
-
-    },
-    "USB device disconnected" : {
-
-    },
-    "Unknown" : {
-
-    },
-    "Verifying signature…" : {
-
-    },
-    "View release" : {
-
-    },
-    "What gets shared?" : {
-
-    },
-    "WhatCable %@ is available" : {
-
-    },
-    "WhatCable on GitHub" : {
-
-    },
-    "Yes" : {
-
-    },
-    "You're on %@" : {
-
-    },
-    "active" : {
-
-    },
-    "no active link" : {
-
+    "About %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关于 %@"
+          }
+        }
+      }
+    },
+    "Active": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "活跃"
+          }
+        }
+      }
+    },
+    "Active cable electronics": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主动线缆电子设备"
+          }
+        }
+      }
+    },
+    "All raw IOKit properties (%lld)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所有原始 IOKit 属性 (%lld)"
+          }
+        }
+      }
+    },
+    "Behavior": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "行为"
+          }
+        }
+      }
+    },
+    "Built by %@.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "由 %@ 构建。"
+          }
+        }
+      }
+    },
+    "Cable trust signals": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "线缆信任信号"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        }
+      }
+    },
+    "Charger connected": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "充电器已连接"
+          }
+        }
+      }
+    },
+    "Charger disconnected": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "充电器已断开"
+          }
+        }
+      }
+    },
+    "Check for Updates…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检查更新…"
+          }
+        }
+      }
+    },
+    "Connected devices": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已连接设备"
+          }
+        }
+      }
+    },
+    "Connected: %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已连接：%@"
+          }
+        }
+      }
+    },
+    "Connection": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接"
+          }
+        }
+      }
+    },
+    "Display": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        }
+      }
+    },
+    "Downloading…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载中…"
+          }
+        }
+      }
+    },
+    "File a GitHub issue with this cable's e-marker fingerprint": {},
+    "Font size": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "字体大小"
+          }
+        }
+      }
+    },
+    "Helps the maintainer reproduce charger / cable behavior tied to specific hardware.": {},
+    "Hide empty ports": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐藏空端口"
+          }
+        }
+      }
+    },
+    "Host (%@)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主机 (%@)"
+          }
+        }
+      }
+    },
+    "Include Mac model and macOS version": {},
+    "Install failed: %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安装失败：%@"
+          }
+        }
+      }
+    },
+    "Install update": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安装更新"
+          }
+        }
+      }
+    },
+    "Installing, WhatCable will relaunch": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安装中，WhatCable 将重新启动"
+          }
+        }
+      }
+    },
+    "Keep window open": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保持窗口打开"
+          }
+        }
+      }
+    },
+    "Launch at login": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录时启动"
+          }
+        }
+      }
+    },
+    "Lives in the menu bar with no Dock icon.": {},
+    "No": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "否"
+          }
+        }
+      }
+    },
+    "No USB-C ports detected": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未检测到 USB-C 端口"
+          }
+        }
+      }
+    },
+    "Nothing connected": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未连接任何设备"
+          }
+        }
+      }
+    },
+    "Notifications": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知"
+          }
+        }
+      }
+    },
+    "Notify on cable changes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "线缆变化时通知"
+          }
+        }
+      }
+    },
+    "Open in GitHub": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 GitHub 中打开"
+          }
+        }
+      }
+    },
+    "Opens a pre-filled GitHub issue in your browser. Nothing is sent until you submit there.": {},
+    "Optical": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "光纤"
+          }
+        }
+      }
+    },
+    "PD source": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PD 电源"
+          }
+        }
+      }
+    },
+    "%@ negotiated": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 已协商"
+          }
+        }
+      }
+    },
+    "Plug events": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "插拔事件"
+          }
+        }
+      }
+    },
+    "Preview of what will be included:": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将包含的内容预览："
+          }
+        }
+      }
+    },
+    "Provisioned": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已配置"
+          }
+        }
+      }
+    },
+    "Quit": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出"
+          }
+        }
+      }
+    },
+    "Quit %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出 %@"
+          }
+        }
+      }
+    },
+    "Refresh": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新"
+          }
+        }
+      }
+    },
+    "Report this cable": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "报告此线缆"
+          }
+        }
+      }
+    },
+    "Runs as a regular Dock app with a window.": {},
+    "Settings": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置"
+          }
+        }
+      }
+    },
+    "Settings…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置…"
+          }
+        }
+      }
+    },
+    "Show in menu bar": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在菜单栏中显示"
+          }
+        }
+      }
+    },
+    "Show technical details": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示技术细节"
+          }
+        }
+      }
+    },
+    "SuperSpeed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "超速"
+          }
+        }
+      }
+    },
+    "Supported": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "支持"
+          }
+        }
+      }
+    },
+    "This Mac doesn't seem to expose its port-controller services. Hit refresh, or check System Information > USB.": {},
+    "Thunderbolt fabric": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雷电网络"
+          }
+        }
+      }
+    },
+    "Transports": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "传输协议"
+          }
+        }
+      }
+    },
+    "USB active": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "USB 活跃"
+          }
+        }
+      }
+    },
+    "USB device": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "USB 设备"
+          }
+        }
+      }
+    },
+    "USB device disconnected": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "USB 设备已断开"
+          }
+        }
+      }
+    },
+    "Unknown": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未知"
+          }
+        }
+      }
+    },
+    "Verifying signature…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "验证签名中…"
+          }
+        }
+      }
+    },
+    "View release": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看发布"
+          }
+        }
+      }
+    },
+    "What gets shared?": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会共享什么？"
+          }
+        }
+      }
+    },
+    "WhatCable %@ is available": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WhatCable %@ 可用"
+          }
+        }
+      }
+    },
+    "WhatCable on GitHub": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub 上的 WhatCable"
+          }
+        }
+      }
+    },
+    "Yes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "是"
+          }
+        }
+      }
+    },
+    "You're on %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "您当前使用的是 %@"
+          }
+        }
+      }
+    },
+    "active": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "活跃"
+          }
+        }
+      }
+    },
+    "no active link": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无活跃链接"
+          }
+        }
+      }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

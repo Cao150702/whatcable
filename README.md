@@ -1,57 +1,57 @@
 # WhatCable
 
-> **What can this USB-C cable actually do?**
+> **这根 USB-C 线缆到底能做什么？**
 
-A small macOS menu bar app that tells you, in plain English, what each USB-C cable plugged into your Mac can actually do, and **why your Mac might be charging slowly**.
+一款小巧的 macOS 菜单栏应用，用通俗易懂的中文告诉你，插在 Mac 上的每根 USB-C 线缆实际能做什么，以及**为什么你的 Mac 充电很慢**。
 
-USB-C hides a lot under one connector. Anything from a USB 2.0 charge-only cable to a 240W / 40 Gbps Thunderbolt 4 cable, all looking identical in your drawer. macOS already exposes the relevant info via IOKit; WhatCable surfaces it as a friendly menu bar popover.
+USB-C 在一个接口下隐藏了很多可能性。从 USB 2.0 仅充电线缆到 240W / 40 Gbps Thunderbolt 4 线缆，在你的抽屉里看起来都一模一样。macOS 已经通过 IOKit 暴露了相关信息；WhatCable 将其呈现为友好的菜单栏弹出窗口。
 
-[![Latest release](https://img.shields.io/github/v/release/darrylmorley/whatcable)](https://github.com/darrylmorley/whatcable/releases/latest)
-[![Platform](https://img.shields.io/badge/platform-macOS%2014%2B-blue)](https://github.com/darrylmorley/whatcable)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![最新版本](https://img.shields.io/github/v/release/darrylmorley/whatcable)](https://github.com/darrylmorley/whatcable/releases/latest)
+[![平台](https://img.shields.io/badge/platform-macOS%2014%2B-blue)](https://github.com/darrylmorley/whatcable)
+[![许可证: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-![WhatCable popover](docs/screenshot.png)
+![WhatCable 弹出窗口](docs/screenshot.png)
 
 > [!IMPORTANT]
-> **Upgrading from 0.5.x to 0.6.0?** WhatCable's bundle ID changed from `com.bitmoor.whatcable` to `uk.whatcable.whatcable` in 0.6.0 to match the new `whatcable.uk` domain. The in-app "Check for Updates" path in 0.5.x will refuse to install 0.6.0 because the downloaded bundle ID won't match what it expects. Upgrade through Homebrew (`brew upgrade --cask whatcable`) or by downloading [the latest release zip](https://github.com/darrylmorley/whatcable/releases/latest) and replacing `WhatCable.app` manually. Your preferences and notification permissions will reset on first launch of 0.6.0; re-enable launch-at-login from Settings if you had it on. This only affects the 0.5.x → 0.6.0 transition.
+> **从 0.5.x 升级到 0.6.0？** WhatCable 的 bundle ID 在 0.6.0 中从 `com.bitmoor.whatcable` 更改为 `uk.whatcable.whatcable`，以匹配新的 `whatcable.uk` 域名。0.5.x 中的应用内"检查更新"路径将拒绝安装 0.6.0，因为下载的 bundle ID 与预期不匹配。请通过 Homebrew (`brew upgrade --cask whatcable`) 升级，或下载[最新发布 zip](https://github.com/darrylmorley/whatcable/releases/latest) 并手动替换 `WhatCable.app`。你的偏好设置和通知权限将在 0.6.0 首次启动时重置；如果之前开启了登录启动，请在设置中重新启用。这仅影响 0.5.x → 0.6.0 的过渡。
 
-## What it shows
+## 功能特性
 
-Per port, in plain English:
+每个端口，通俗易懂地显示：
 
-- **At-a-glance headline:** Thunderbolt / USB4, USB device, Charging only, Slow USB / charge-only cable, Nothing connected
-- **Charging diagnostic:** when something's plugged in, a banner identifies the bottleneck:
-  - *"Cable is limiting charging speed"* (cable rated below the charger)
-  - *"Charging at 30W (charger can do up to 96W)"* (Mac is asking for less, e.g. battery near full)
-  - *"Charging well at 96W"* (everything matches)
-- **Cable e-marker info:** the cable's actual speed (USB 2.0, 5 / 10 / 20 / 40 / 80 Gbps), current rating (3 A / 5 A up to 60W / 100W / 240W), and the chip's vendor
-- **Cable trust signals:** an orange card appears when the e-marker reports values that look unusual against the USB-PD spec, like a zero vendor ID, a reserved bit pattern in the speed / current / cable-latency fields, or a VID that isn't in USB-IF's published list. Wording is hedged on purpose: a flag means "this looks unusual," not "this cable is fake."
-- **Charger PDO list:** every voltage profile the charger advertises (5V / 9V / 12V / 15V / 20V…) with the currently negotiated profile highlighted in real time
-- **Connected device identity:** vendor name and product type, decoded from the PD Discover Identity response
-- **Attached USB devices:** storage, hubs, and peripherals listed under the physical port they're plugged into, with their negotiated speed
-- **Active transports:** USB 2 / USB 3 / Thunderbolt / DisplayPort
-- **⌥-click** the menu bar icon (or flip the toggle in Settings) to reveal the underlying IOKit properties for engineers
+- **概览标题：** 雷电 / USB4、USB 设备、仅充电、慢速 USB / 仅充电线缆、未连接任何设备
+- **充电诊断：** 当插入设备时，横幅会识别瓶颈：
+  - *"线缆限制了充电速度"*（线缆额定值低于充电器）
+  - *"正在以 30W 充电（充电器最高支持 96W）"*（Mac 请求较低功率，例如电池接近充满）
+  - *"正在以 96W 良好充电"*（一切匹配）
+- **线缆 e-marker 信息：** 线缆的实际速度（USB 2.0、5 / 10 / 20 / 40 / 80 Gbps）、电流额定值（3 A / 5 A，最高 60W / 100W / 240W）以及芯片供应商
+- **线缆信任信号：** 当 e-marker 报告的值看起来不符合 USB-PD 规范时，会出现橙色卡片，例如零供应商 ID、速度 / 电流 / 线缆延迟字段中的保留位模式，或不在 USB-IF 公布列表中的 VID。措辞故意含糊：标记意味着"这看起来不寻常"，而不是"这根线缆是假的。"
+- **充电器 PDO 列表：** 充电器公布的每个电压配置文件（5V / 9V / 12V / 15V / 20V…），实时高亮显示当前协商的配置文件
+- **连接的设备身份：** 供应商名称和产品类型，从 PD Discover Identity 响应解码
+- **连接的 USB 设备：** 存储设备、集线器和外设列在它们插入的物理端口下，显示协商速度
+- **活动传输协议：** USB 2 / USB 3 / 雷电 / DisplayPort
+- **⌥-点击** 菜单栏图标（或在设置中翻转开关）以显示工程师所需的底层 IOKit 属性
 
-Click the **gear icon** in the popover header to open Settings, where you can:
+点击弹出窗口标题栏中的**齿轮图标**打开设置，你可以：
 
-- Hide empty ports
-- Launch at login
-- Run as a regular Dock app instead of a menu bar icon
-- Get notifications when cables are connected or disconnected
+- 隐藏空端口
+- 登录时启动
+- 作为常规 Dock 应用运行，而不是菜单栏图标
+- 在线缆连接或断开时获取通知
 
-Right-click the menu bar icon for **Refresh**, a **Keep window open** toggle (handy for screenshots and demos), **Check for Updates…**, **About**, **WhatCable on GitHub**, and **Quit**.
+右键点击菜单栏图标可访问**刷新**、**保持窗口打开**开关（方便截图和演示）、**检查更新…**、**关于**、**GitHub 上的 WhatCable** 和**退出**。
 
-## Install
+## 安装
 
-Visit [whatcable.uk](https://whatcable.uk) for an overview and screenshots, or install directly below.
+访问 [whatcable.uk](https://whatcable.uk) 查看概述和截图，或直接通过以下方式安装。
 
-Download the latest `WhatCable.zip` from the [Releases page](https://github.com/darrylmorley/whatcable/releases/latest), unzip, and drag `WhatCable.app` to `/Applications`.
+从[发布页面](https://github.com/darrylmorley/whatcable/releases/latest)下载最新的 `WhatCable.zip`，解压缩，然后将 `WhatCable.app` 拖到 `/Applications`。
 
-The app is universal (Apple silicon + Intel), signed with a Developer ID, and notarised by Apple, so there are no Gatekeeper warnings.
+该应用是通用应用（Apple silicon + Intel），使用开发者 ID 签名，并经过 Apple 公证，因此没有 Gatekeeper 警告。
 
-Requires macOS 14 (Sonoma) or later. Apple Silicon only. On Intel Macs, the USB-C ports are driven by Intel Titan Ridge / JHL9580 Thunderbolt 3 controllers, and the USB-PD state and cable e-marker data WhatCable depends on are not exposed through any public IOKit accessor.
+需要 macOS 14 (Sonoma) 或更高版本。仅支持 Apple Silicon。在 Intel Mac 上，USB-C 端口由 Intel Titan Ridge / JHL9580 Thunderbolt 3 控制器驱动，WhatCable 依赖的 USB-PD 状态和线缆 e-marker 数据未通过任何公共 IOKit 访问器暴露。
 
-> **Note:** The manual install gives you the menu bar app only. The `whatcable` CLI is bundled inside the `.app` and is not on your PATH by default. If you want to use it from the shell, see the [Command-line interface](#command-line-interface) section below for the one-line symlink. Or install via Homebrew, which sets up the CLI automatically.
+> **注意：** 手动安装仅提供菜单栏应用。`whatcable` CLI 捆绑在 `.app` 内，默认不在你的 PATH 中。如果你想从 shell 使用它，请参阅下面的[命令行界面](#命令行界面)部分获取单行符号链接命令。或通过 Homebrew 安装，它会自动设置 CLI。
 
 ### Homebrew
 
@@ -60,123 +60,118 @@ brew tap darrylmorley/whatcable
 brew install --cask whatcable
 ```
 
-This installs the menu bar app and symlinks the `whatcable` CLI into your PATH.
+这会安装菜单栏应用并将 `whatcable` CLI 符号链接到你的 PATH。
 
-## Command-line interface
+## 命令行界面
 
-A `whatcable` binary ships alongside the menu bar app, driven by the same diagnostic engine:
+`whatcable` 二进制文件与菜单栏应用一起提供，由相同的诊断引擎驱动：
 
 ```bash
-whatcable                # human-readable summary of every port
-whatcable --json         # structured JSON, pipe into jq
-whatcable --watch        # stream updates as cables come and go (Ctrl+C to exit)
-whatcable --raw          # include underlying IOKit properties
+whatcable                # 每个端口的人类可读摘要
+whatcable --json         # 结构化 JSON，可管道到 jq
+whatcable --watch        # 在线缆插入和拔出时流式更新（Ctrl+C 退出）
+whatcable --raw          # 包含底层 IOKit 属性
 whatcable --version
 whatcable --help
 ```
 
-If you installed the `.app` manually rather than via Homebrew, the CLI lives at `WhatCable.app/Contents/Helpers/whatcable`. Symlink it into your PATH if you want it on the shell:
+如果你是手动安装 `.app` 而不是通过 Homebrew，CLI 位于 `WhatCable.app/Contents/Helpers/whatcable`。如果你想在 shell 上使用它，请将其符号链接到你的 PATH：
 
 ```bash
 ln -s /Applications/WhatCable.app/Contents/Helpers/whatcable /usr/local/bin/whatcable
 ```
 
-The Homebrew install does this for you automatically.
+Homebrew 安装会自动执行此操作。
 
-## How it works
+## 工作原理
 
-WhatCable reads four families of IOKit services. No entitlements, no private APIs, no helper daemons:
+WhatCable 读取四类 IOKit 服务。无需授权、无需私有 API、无需辅助守护程序：
 
-| Service | What it gives us |
+| 服务 | 提供的信息 |
 | --- | --- |
-| `AppleHPMInterfaceType10/11/12` (M3-era), `AppleTCControllerType10/11` (M1 / M2), and `IOPort` (M4 Mac mini front ports) | Per-port state: connection, transports, plug orientation, e-marker presence. `Type11` is what M2 MacBook Air uses for its MagSafe 3 port. |
-| `IOPortFeaturePowerSource` | Full PDO list from the connected source, with the live "winning" PDO |
-| `IOPortTransportComponentCCUSBPDSOP`, `...SOPp`, `...SOPpp` | PD Discover Identity VDOs from the port partner (SOP), the cable's near-end e-marker (SOP'), and the far-end e-marker (SOP'') if present |
-| XHCI controller subtree | Each connected USB device is paired to its physical port via the XHCI port node's `UsbIOPort` registry path, falling back to a bus-index derived from the controller's `locationID` upper byte and the port's `hpm` SPMI ancestor on machines that don't expose `UsbIOPort`. |
+| `AppleHPMInterfaceType10/11/12`（M3 时代）、`AppleTCControllerType10/11`（M1 / M2）和 `IOPort`（M4 Mac mini 前面板端口） | 每端口状态：连接、传输协议、插头方向、e-marker 存在。`Type11` 是 M2 MacBook Air 用于其 MagSafe 3 端口的。 |
+| `IOPortFeaturePowerSource` | 来自连接源的完整 PDO 列表，带有实时"获胜"PDO |
+| `IOPortTransportComponentCCUSBPDSOP`、`...SOPp`、`...SOPpp` | 来自端口伙伴 (SOP)、线缆近端 e-marker (SOP') 和远端 e-marker (SOP'')（如果存在）的 PD Discover Identity VDO |
+| XHCI 控制器子树 | 每个连接的 USB 设备通过其物理端口配对，通过 XHCI 端口节点的 `UsbIOPort` 注册表路径，在不暴露 `UsbIOPort` 的机器上回退到从控制器的 `locationID` 高字节和端口的 `hpm` SPMI 祖先派生的总线索引。 |
 
-Cable speed and power decoding follow the USB Power Delivery spec (aligned to USB-PD R3.2 V1.2, March 2026). Vendor names come from USB-IF's published vendor-ID list, bundled as a TSV refreshed by `scripts/update-vendor-db.sh`.
+线缆速度和功率解码遵循 USB Power Delivery 规范（对齐到 USB-PD R3.2 V1.2，2026 年 3 月）。供应商名称来自 USB-IF 公布的供应商 ID 列表，作为 TSV 捆绑，可通过 `scripts/update-vendor-db.sh` 刷新。
 
-## Build from source
+## 从源码构建
 
 ```bash
-swift run WhatCable          # menu bar app
+swift run WhatCable          # 菜单栏应用
 swift run whatcable-cli      # CLI
 ```
 
-Requires Swift 5.9 (Xcode 15+).
+需要 Swift 5.9（Xcode 15+）。
 
-## Build a distributable .app
+## 构建可分发的 .app
 
 ```bash
 ./scripts/build-app.sh
 ```
 
-Produces a universal `dist/WhatCable.app` (arm64 + x86_64) and `dist/WhatCable.zip`.
+生成通用的 `dist/WhatCable.app`（arm64 + x86_64）和 `dist/WhatCable.zip`。
 
-**Modes:**
+**模式：**
 
-| Configuration | Result |
+| 配置 | 结果 |
 | --- | --- |
-| No `.env` | Ad-hoc signed. Works locally; Gatekeeper warns on other Macs. |
-| `.env` with `DEVELOPER_ID` | Developer ID signed + hardened runtime. |
-| `.env` with `DEVELOPER_ID` + `NOTARY_PROFILE` | Full notarisation + stapled ticket. Gatekeeper-clean for everyone. |
+| 无 `.env` | 临时签名。本地工作；在其他 Mac 上 Gatekeeper 会警告。 |
+| `.env` 带 `DEVELOPER_ID` | 开发者 ID 签名 + 强化运行时。 |
+| `.env` 带 `DEVELOPER_ID` + `NOTARY_PROFILE` | 完整公证 + 装订票据。对所有人而言都是 Gatekeeper 干净的。 |
 
-**Cutting a release:**
+**发布版本：**
 
 ```bash
-# write release-notes/v0.5.3.md first, then:
+# 先编写 release-notes/v0.5.3.md，然后：
 ./scripts/release.sh 0.5.3
 ```
 
-The wrapper does the whole pipeline: bumps the version, runs build-app.sh
-(which builds, signs, notarises, smoke-tests, and bumps the local cask),
-tags and pushes the commit, creates the GitHub release with the notes
-file, verifies the uploaded asset's sha matches the local zip, copies the
-notes into the tap, and pushes the tap. Use `--dry-run` first to validate
-state. Requires `gh` (auth'd) and the env vars from `.env.example`.
+包装器执行整个流水线：版本升级，运行 build-app.sh（构建、签名、公证、冒烟测试并升级本地 cask）、标记并推送提交、使用说明文件创建 GitHub 发布、验证上传资源的 sha 与本地 zip 匹配、将说明复制到 tap 并推送 tap。首先使用 `--dry-run` 验证状态。需要 `gh`（已认证）和 `.env.example` 中的环境变量。
 
-**One-time setup for full notarisation:**
+**首次完整公证设置：**
 
 ```bash
-# 1. Find your signing identity
+# 1. 找到你的签名身份
 security find-identity -v -p codesigning
 
-# 2. Store notarytool credentials in the keychain
+# 2. 将 notarytool 凭据存储在钥匙串中
 xcrun notarytool store-credentials "WhatCable-notary" \
     --apple-id "you@example.com" \
     --team-id "ABCDE12345" \
-    --password "<app-specific-password>"   # generate at appleid.apple.com
+    --password "<app-specific-password>"   # 在 appleid.apple.com 生成
 
-# 3. Create your .env from the template
+# 3. 从模板创建你的 .env
 cp .env.example .env
-# ...and fill in DEVELOPER_ID
+# ...并填写 DEVELOPER_ID
 ```
 
-## Caveats
+## 注意事项
 
-- **Cable e-marker info only appears for cables that carry one.** Most USB-C cables under 60 W are unmarked. Any Thunderbolt / USB4 cable, any 5 A / 100 W+ cable, and most quality data cables will be e-marked.
-- **Some cables only reveal their e-marker once something is plugged in at the other end.** The chip in the cable's plug runs off VCONN (a small power rail your Mac feeds into the cable) and only answers when the host issues a "Discover Identity" message. With nothing attached, some Macs read the e-marker straight away, others wait until they see a real partner to negotiate with. If a cable shows up as basic when bare, plug a charger, dock, or device into the far end and check again.
-- **WhatCable trusts the e-marker for capabilities.** Cable speed, current rating, and vendor come straight from the chip in the cable's plug, and software cannot verify what's inside the jacket. If a cable claims 240W / 40 Gbps but performs poorly, the chip is lying, not WhatCable. The trust-signals card flags a small set of internal-consistency tells (zero VID, reserved bit patterns in the Cable VDO, a VID not in the USB-IF list) that often appear on counterfeit or mis-flashed cables, but those flags are hedged signals, not proof.
-- **PD spec coverage:** the decoder is aligned to USB-PD R3.2 V1.2 (March 2026). Earlier 3.0 / 3.1 cables work fine.
-- **Vendor name lookup uses USB-IF's published list** (~13,650 entries, March 2026 snapshot). VIDs assigned by USB-IF after that snapshot will show as "Unregistered / unknown" and trip a trust-signal flag until the bundled list is refreshed.
-- **macOS only.** iOS sandboxing makes USB-C e-marker access much harder.
-- **Apple Silicon only.** Intel Macs route USB-C through Intel Thunderbolt 3 controllers (Titan Ridge / JHL9580). Apple's IOKit driver for those chips does not expose the USB-PD negotiation state or the cable e-marker VDOs, so there's no path to surface the same information on Intel hardware.
-- **Not on the App Store.** App Sandbox blocks the IOKit reads we depend on.
+- **线缆 e-marker 信息仅出现在携带 e-marker 的线缆上。** 大多数 60W 以下的 USB-C 线缆未标记。任何雷电 / USB4 线缆、任何 5A / 100W+ 线缆以及大多数优质数据线缆都会进行 e-marked。
+- **有些线缆仅在其他端插入设备后才显示其 e-marker。** 线缆插头中的芯片从 VCONN（你的 Mac 馈入线缆的小型电源轨）运行，并且仅在主机发出"Discover Identity"消息时应答。在没有附件的情况下，某些 Mac 会立即读取 e-marker，而其他 Mac 则等到看到真正的伙伴进行协商。如果线缆在裸露时显示为基本线缆，请将充电器、扩展坞或设备插入远端并再次检查。
+- **WhatCable 信任 e-marker 的功能。** 线缆速度、电流额定值和供应商直接来自线缆插头中的芯片，软件无法验证外套内部的内容。如果线缆声称 240W / 40 Gbps 但性能不佳，则是芯片在撒谎，而不是 WhatCable。信任信号卡片标记了一小组内部一致性信号（零 VID、Cable VDO 中的保留位模式、不在 USB-IF 列表中的 VID），这些信号经常出现在假冒或错误刷写的线缆上，但这些标记是含糊的信号，不是证据。
+- **PD 规范覆盖：** 解码器对齐到 USB-PD R3.2 V1.2（2026 年 3 月）。早期的 3.0 / 3.1 线缆工作正常。
+- **供应商名称查找使用 USB-IF 公布的列表**（约 13,650 个条目，2026 年 3 月快照）。在该快照之后 USB-IF 分配的 VID 将显示为"未注册 / 未知"并触发信任信号标记，直到捆绑列表被刷新。
+- **仅限 macOS。** iOS 沙盒使 USB-C e-marker 访问更加困难。
+- **仅限 Apple Silicon。** Intel Mac 通过 Intel Thunderbolt 3 控制器（Titan Ridge / JHL9580）路由 USB-C。Apple 针对这些芯片的 IOKit 驱动程序不暴露 USB-PD 协商状态或线缆 e-marker VDO，因此无法在 Intel 硬件上提供相同的信息。
+- **不在 App Store 上。** 应用沙盒阻止了我们依赖的 IOKit 读取。
 
-## Privacy
+## 隐私
 
-WhatCable reads USB-C port state directly from IOKit on your Mac. All of that happens locally. Nothing is sent anywhere automatically.
+WhatCable 直接从 Mac 上的 IOKit 读取 USB-C 端口状态。所有操作都在本地进行。不会自动发送任何内容到任何地方。
 
-**Cable reports:** If you use the "Report this cable" button on an e-marked cable, WhatCable builds a pre-filled GitHub issue containing the cable's vendor ID, product ID, and capability flags (VDOs). Your browser opens with that data in the issue form. Nothing is submitted until you click the button in GitHub yourself. Once submitted, the issue is public.
+**线缆报告：** 如果你在 e-marked 线缆上使用"报告此线缆"按钮，WhatCable 会构建一个预填充的 GitHub issue，包含线缆的供应商 ID、产品 ID 和功能标志 (VDO)。你的浏览器会打开带有该数据的 issue 表单。在你自己在 GitHub 中点击按钮之前，不会提交任何内容。提交后，issue 是公开的。
 
-**Update checks:** WhatCable periodically checks the GitHub Releases API to see if a newer version is available. No personal data or hardware info is included in that request.
+**更新检查：** WhatCable 定期检查 GitHub Releases API 以查看是否有较新版本可用。该请求不包含个人数据或硬件信息。
 
-## Contributing
+## 贡献
 
-Issues and PRs welcome. The code is small and tries to stay readable. Start at [`Sources/WhatCable/ContentView.swift`](Sources/WhatCable/ContentView.swift) for the UI, [`Sources/WhatCableCore/PortSummary.swift`](Sources/WhatCableCore/PortSummary.swift) for the plain-English logic, or [`Sources/WhatCableCore/PDVDO.swift`](Sources/WhatCableCore/PDVDO.swift) for the bit-twiddling. Cross-platform models and the diagnostic engine live in `WhatCableCore`; the IOKit watchers (port state, PD identity, power sources, USB devices) live in [`Sources/WhatCableDarwinBackend/`](Sources/WhatCableDarwinBackend/). The same `WhatCableCore` powers the menu bar app and the `whatcable` CLI in [`Sources/WhatCableCLI/`](Sources/WhatCableCLI/).
+欢迎提交 issue 和 PR。代码量小，力求保持可读性。从 [`Sources/WhatCable/ContentView.swift`](Sources/WhatCable/ContentView.swift) 开始了解 UI，从 [`Sources/WhatCableCore/PortSummary.swift`](Sources/WhatCableCore/PortSummary.swift) 了解通俗易懂的逻辑，或从 [`Sources/WhatCableCore/PDVDO.swift`](Sources/WhatCableCore/PDVDO.swift) 了解位操作。跨平台模型和诊断引擎位于 `WhatCableCore`；IOKit 监视器（端口状态、PD 身份、电源、USB 设备）位于 [`Sources/WhatCableDarwinBackend/`](Sources/WhatCableDarwinBackend/)。相同的 `WhatCableCore` 为菜单栏应用和 [`Sources/WhatCableCLI/`](Sources/WhatCableCLI/) 中的 `whatcable` CLI 提供动力。
 
-## Credits
+## 致谢
 
-Built by [Darryl Morley](https://github.com/darrylmorley).
+由 [Darryl Morley](https://github.com/darrylmorley) 构建。
 
-Inspired by every time someone has asked "*is this cable any good?*".
+灵感来自每次有人问"*这根线缆好吗？*"。
